@@ -1,0 +1,17 @@
+- name: add microsoft apt key
+  become: yes
+  apt_key:
+    state: present
+    url: https://packages.microsoft.com/keys/microsoft.asc
+
+- name: add vscode repo
+  become: yes
+  copy:
+    src: vscode.list
+    dest: /etc/apt/sources.list.d/vscode.list
+    mode: a+r
+
+- name: update apt cache
+  become: yes
+  apt:
+    update_cache: yes

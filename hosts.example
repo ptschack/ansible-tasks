@@ -1,0 +1,7 @@
+[agroup]
+localhost
+
+[agroup:vars]
+git_fullName='Full Name Here'
+git_email='eMail address for git'
+ssh_keys='["ssh-rsa KEY user@machine"]'

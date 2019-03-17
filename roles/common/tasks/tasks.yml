@@ -1,0 +1,36 @@
+- name: check for package manager apt
+  shell: which apt
+  register: pm_apt
+  ignore_errors: yes
+
+- name: check for package manager dnf
+  shell: which dnf
+  register: pm_dnf
+  ignore_errors: yes
+
+- name: check for package manager yum
+  shell: which yum
+  register: pm_yum
+  ignore_errors: yes
+  
+- fail:
+    msg: "Can't find package manager (dnf/yum/apt)"
+  when: pm_dnf.rc != 0 and pm_apt.rc != 0 and pm_yum.rc != 0
+
+- include_tasks: dnf.yml
+  when: pm_dnf.rc == 0
+
+- include_tasks: apt.yml
+  when: pm_apt.rc == 0
+
+- include_tasks: yum.yml
+  when: pm_dnf.rc != 0 and pm_yum == 0
+
+- name: package upgrade
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - htop
+    - nano

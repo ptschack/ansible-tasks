@@ -1,0 +1,6 @@
+- name: update dnf cache
+  become: yes
+  dnf:
+    update_cache: yes
+
+

@@ -1,0 +1,4 @@
+hosts
+site.yml
+*.retry
+*.sync-conflict*

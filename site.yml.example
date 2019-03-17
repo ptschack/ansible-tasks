@@ -1,0 +1,12 @@
+---
+
+- name: apply common configuration to all nodes
+  hosts: agroup
+  remote_user: auser # set remote user here
+  roles: # comment out what isn't needed
+    - common
+    - sshd
+    - devtools
+    - vbox-host
+    - desktop
+    - latex

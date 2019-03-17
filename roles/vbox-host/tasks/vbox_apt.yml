@@ -1,0 +1,10 @@
+- name: update apt cache
+  become: yes
+  apt:
+    update_cache: yes
+
+- name: add vbox repo
+  become: yes
+  lineinfile:
+    line: deb http://download.virtualbox.org/virtualbox/debian "{{ ansible_distribution_release }}" contrib
+    path: /etc/apt/sources.list

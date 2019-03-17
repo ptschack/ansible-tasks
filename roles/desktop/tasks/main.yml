@@ -1,0 +1,6 @@
+- set_fact: "role_name_included_var=role_{{ role_name | regex_replace('[^A-Za-z]', '_') }}_included"
+
+- include_tasks: tasks.yml
+  when: "hostvars[inventory_hostname][role_name_included_var] | default(0) < 1"
+
+- set_fact: "{{ role_name_included_var }}=1"

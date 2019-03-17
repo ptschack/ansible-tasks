@@ -1,0 +1,42 @@
+- name: install virtualbox dependencies
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - binutils
+    - gcc
+    - make
+    - patch
+    - libgomp
+    - glibc-headers
+    - glibc-devel
+    - kernel-headers
+    - kernel-devel
+    - dkms
+    - qt5-qtx11extras
+    - libxkbcommon
+    - vagrant
+  ignore_errors: true
+
+- include_tasks: vbox_dnf.yml
+  when: pm_dnf.rc == 0
+
+- include_tasks: vbox_apt.yml
+  when: pm_apt.rc == 0
+
+- include_tasks: vbox_yum.yml
+  when: pm_dnf.rc != 0 and pm_yum == 0
+
+- name: install virtualbox
+  become: yes
+  package:
+    name: virtualbox-6.0
+    state: latest
+
+- name: add user to vbox group
+  become: yes
+  user:
+    name: "{{ ansible_user }}"
+    groups: vboxusers
+    append: yes

@@ -1,0 +1,10 @@
+- name: install virtualbox repo
+  become: yes
+  get_url:
+    url: http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo
+    dest: /etc/yum.repos.d/
+
+- name: update yum cache
+  become: yes
+  yum:
+    update_cache: yes
