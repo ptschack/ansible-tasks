@@ -17,7 +17,8 @@
     - qt5-qtx11extras
     - libxkbcommon
     - vagrant
-  ignore_errors: true
+  when:
+    - ansible_distribution == "Fedora"
 
 - include_tasks: vbox_dnf.yml
   when: pm_dnf.rc == 0
