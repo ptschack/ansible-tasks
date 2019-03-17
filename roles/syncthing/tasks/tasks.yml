@@ -1,3 +1,6 @@
+- include_tasks: apt.yml
+  when: pm_apt.rc == 0
+
 - name: install
   become: true
   package:
@@ -12,11 +15,18 @@
   with_items:
     - "{{ inventory_hostname }}/cert.pem"
     - "{{ inventory_hostname }}/config.xml"
-    - "{{ inventory_hostname }}/csrftokens.txt"
     - "{{ inventory_hostname }}/https-cert.pem"
     - "{{ inventory_hostname }}/https-key.pem"
     - "{{ inventory_hostname }}/key.pem"
   ignore_errors: yes
+
+- name: copy service file
+  become: yes
+  copy:
+    src: syncthing@.service
+    dest: /lib/systemd/system/syncthing@.service
+    force: no
+    mode: a+r
 
 - name: configure & start service
   become: yes
@@ -24,4 +34,4 @@
     name: "syncthing@{{ ansible_user }}.service"
     daemon_reload: yes
     enabled: yes
-    state: restarted
+    state: started

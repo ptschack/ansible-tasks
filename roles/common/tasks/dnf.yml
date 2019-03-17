@@ -2,5 +2,5 @@
   become: yes
   dnf:
     update_cache: yes
-
-
+    name: "*"
+    state: latest

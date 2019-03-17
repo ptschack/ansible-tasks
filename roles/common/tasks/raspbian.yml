@@ -1,0 +1,17 @@
+- name: add repo keys
+  become: yes
+  apt_key:
+    url: "{{ item }}"
+    state: present
+  with_items:
+    - http://raspbian.raspberrypi.org/raspbian.public.key
+    - http://archive.raspberrypi.org/debian/raspberrypi.gpg.key
+
+- name: add repositories
+  become: yes
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - 'deb http://raspbian.raspberrypi.org/raspbian/ stable main contrib non-free rpi'
+    - 'deb http://archive.raspberrypi.org/debian/ {{ ansible_distribution_release }} main ui'

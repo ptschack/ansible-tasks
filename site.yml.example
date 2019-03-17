@@ -10,3 +10,5 @@
     - vbox-host
     - desktop
     - latex
+    - syncthing
+    - zsh

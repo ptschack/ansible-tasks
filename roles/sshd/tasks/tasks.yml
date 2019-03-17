@@ -13,7 +13,7 @@
 
 # instead of this:
 - name: generate ssh keys
-  shell: ssh-keygen -t rsa -f ~/.ssh/id_rsa -b 4096
+  shell: ssh-keygen -t rsa -f ~/.ssh/id_rsa -b 4096 -N ''
   args:
     creates: ~/.ssh/id_rsa
 
@@ -47,6 +47,10 @@
 - name: enable & restart sshd
   become: yes
   service:
-    name: sshd
+    name: "{{ item }}"
     enabled: yes
     state: restarted
+  with_items:
+    - ssh
+    - sshd
+  ignore_errors: yes

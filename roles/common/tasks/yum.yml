@@ -1,4 +1,6 @@
 - name: update yum cache
   become: yes
   yum:
-    update_cache: yes 
+    update_cache: yes
+    name: "*"
+    state: latest
