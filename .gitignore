@@ -2,3 +2,4 @@ hosts
 site.yml
 *.retry
 *.sync-conflict*
+roles/syncthing/files/*

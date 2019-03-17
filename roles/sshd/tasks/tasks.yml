@@ -6,10 +6,12 @@
   with_items:
     - openssh-server
 
+# when updated to ansible > 2.8, do this:
 #- name: generate ssh keys
 #  openssh_keypair:
 #    path: ~/.ssh/id_rsa
 
+# instead of this:
 - name: generate ssh keys
   shell: ssh-keygen -t rsa -f ~/.ssh/id_rsa -b 4096
   args:

@@ -13,7 +13,8 @@
   register: pm_yum
   ignore_errors: yes
   
-- fail:
+- name: fail when no package manager found
+  fail:
     msg: "Can't find package manager (dnf/yum/apt)"
   when: pm_dnf.rc != 0 and pm_apt.rc != 0 and pm_yum.rc != 0
 
