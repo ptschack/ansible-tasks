@@ -53,6 +53,11 @@
     - davidanson.vscode-markdownlint
     - james-yu.latex-workshop
     - dotjoshjohnson.xml
+    - samuelcolvin.jinjahtml
+    - ivory-lab.jenkinsfile-support
+    - alanwalk.markdown-toc
+    - davidanson.vscode-markdownlint
+    - coolbear.systemd-unit-file
 
 - name: configure git
   git_config:
