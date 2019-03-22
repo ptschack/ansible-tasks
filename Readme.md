@@ -1,6 +1,10 @@
 # How to apply these playbooks
 
-## Create hosts and site.yml file
+## Clone the repository
+
+`git clone https://github.com/ptschack/ansible-tasks.git`
+
+## Create hosts and site.yml files inside repository
 
 Use `hosts.example` and `site.yml.example` as templates.
 
