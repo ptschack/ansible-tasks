@@ -17,7 +17,3 @@
     upgrade: dist
   register: upgrade_dist
   ignore_errors: yes
-
-#- fail:
-#    msg: "Both apt upgrade methods failed"
-#  when: upgrade_apt.rc != 0 and upgrade_dist.rc != 0

@@ -49,8 +49,19 @@
   service:
     name: "{{ item }}"
     enabled: yes
-    state: restarted
+    state: started
   with_items:
     - ssh
+  when:
+    - ansible_distribution == "Debian"
+
+- name: enable & restart sshd
+  become: yes
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
     - sshd
-  ignore_errors: yes
+  when:
+    - ansible_distribution == "Fedora"

@@ -4,8 +4,25 @@
     name: "{{ item }}"
     state: present
   with_items:
-    - texlive-scheme-full
-    - texlive-full
     - kile
     - kbibtex
-  ignore_errors: yes
+
+- name: install software
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - texlive-scheme-full
+  when:
+    - ansible_distribution == "Fedora"
+
+- name: install software
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - texlive-full
+  when:
+    - ansible_distribution == "Debian"

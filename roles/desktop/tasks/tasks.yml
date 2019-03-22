@@ -1,12 +1,29 @@
-- name: install software
+- name: install KDE on Fedora
   become: yes
   package:
     name: "{{ item }}"
     state: present
   with_items:
     - "@kde-desktop"
+  when:
+    - ansible_distribution == "Fedora"
+
+- name: install KDE on Debian
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
     - kde-standard
+  when:
+    - ansible_distribution == "Debian"
+
+- name: install software
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
     - gimp
     - spectacle
     - vlc
-  ignore_errors: yes
