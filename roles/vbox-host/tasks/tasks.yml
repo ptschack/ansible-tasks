@@ -20,6 +20,12 @@
   when:
     - ansible_distribution == "Fedora"
 
+- name: install vagrant
+  become: yes
+  package:
+    name: vagrant
+    state: present
+
 - include_tasks: vbox_dnf.yml
   when: pm_dnf.rc == 0
 

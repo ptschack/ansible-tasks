@@ -1,3 +1,9 @@
+- name: add oracle key
+  become: yes
+  rpm_key:
+    key: https://www.virtualbox.org/download/oracle_vbox.asc
+    state: present
+
 - name: install virtualbox repo
   become: yes
   get_url:
