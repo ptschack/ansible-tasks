@@ -15,8 +15,21 @@
   with_items:
     - git
     - kdiff3
-    - openssh-client
     - code
+
+- name: install software
+  become: yes
+  package:
+    name: openssh-client
+    state: present
+  when: ansible_distribution == "Debian"
+
+- name: install software
+  become: yes
+  package:
+    name: openssh
+    state: present
+  when: ansible_distribution == "Fedora"
 
 # when updated to ansible > 2.8, do this:
 #- name: generate ssh keys

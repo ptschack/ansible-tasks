@@ -8,4 +8,5 @@
     - kde-standard
     - gimp
     - spectacle
+    - vlc
   ignore_errors: yes

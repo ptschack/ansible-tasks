@@ -25,6 +25,10 @@
 
 - include_tasks: raspbian.yml
   when: os_raspbian.rc == 0
+
+- include_tasks: fedora.yml
+  when:
+    - ansible_distribution == "Fedora"
   
 - name: fail when no package manager found
   fail:
