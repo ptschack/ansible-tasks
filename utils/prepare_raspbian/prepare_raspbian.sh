@@ -165,5 +165,6 @@ for RPI_HOSTNAME in ${RPI_HOSTNAMES[@]}; do
     ' && \
     echo "\$ sudo umount $MOUNTDIR" && \
     sudo umount $MOUNTDIR
-done && \
+done
+
 unset PASSWORD
