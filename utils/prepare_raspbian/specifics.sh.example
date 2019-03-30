@@ -1,0 +1,6 @@
+#!/bin/bash
+
+RPI_HOSTNAMES=('changeme' 'host1')
+RPI_USERNAME='someuser'
+MOUNTDIR='/media/raspbian'
+AUTHORIZED_KEYS_FILE=~/.ssh/authorized_keys

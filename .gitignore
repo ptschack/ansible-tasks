@@ -3,3 +3,8 @@ site.yml
 *.retry
 *.sync-conflict*
 roles/syncthing/files/*
+utils/prepare_raspbian/*.zip
+utils/prepare_raspbian/*.img
+utils/prepare_raspbian/*.sha256
+utils/prepare_raspbian/wpa_supplicant.conf
+utils/prepare_raspbian/specifics.sh
