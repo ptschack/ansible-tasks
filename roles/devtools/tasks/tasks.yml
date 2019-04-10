@@ -80,5 +80,7 @@
     - { name: 'alias.co', value: 'checkout' }
     - { name: 'alias.s', value: 'status' }
     - { name: 'alias.cl', value: 'clean -dfq' }
+    - { name: 'alias.clone', value: 'clone --recursive' }
     - { name: 'alias.re', value: 'reset --hard HEAD' }
+    - { name: 'alias.smui', value: 'submodule update --init --recursive' }
     - { name: 'fetch.prune', value: 'true' }

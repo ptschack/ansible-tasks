@@ -27,3 +27,8 @@
     - gimp
     - spectacle
     - vlc
+    - youtube-dl
+    - kdenlive
+
+- name: update youtube-dl -U
+  command: youtube-dl -U

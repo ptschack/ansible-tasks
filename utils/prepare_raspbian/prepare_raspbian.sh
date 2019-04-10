@@ -2,6 +2,8 @@
 
 # developed for / works on debian 9.8 "stretch"
 
+set -e
+
 RASPBIAN_DOWNLOAD_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 
 source specifics.sh
@@ -20,10 +22,10 @@ elif [ -z "$AUTHORIZED_KEYS_FILE" ]; then
 fi
 
 function get_package_manager(){ # check availability of different package managers
-    local PKGMGR='' && \
+    local PKGMGR=''
     for i in apt-get yum dnf; do # sort from least to most preferred
         which $i > /dev/null && PKGMGR=$i # e.g. if 'apt-get' command is available, PKGMGR will be set to 'apt-get'
-    done && \
+    done
     [ -z "$PKGMGR" ] && return 1
     echo $PKGMGR
 }
@@ -39,37 +41,27 @@ function download_raspbian(){
         grep '^Location:' | \
         sed 's|^Location: ||' | \
         sed 's|\.zip.*$|\.zip|' \
-    ) && \
-    local CHECKSUM_ALG='sha256' && \
-    local FILENAME_ZIP=$(echo $LINK | sed 's|^.*/||') && \
-    local FILENAME_IMG=$(echo $FILENAME_ZIP | sed 's|\.zip|\.img|') && \
-    echo -e '\ncurrent raspbian version: '$FILENAME_ZIP && \
+    )
+    local CHECKSUM_ALG='sha256'
+    local FILENAME_ZIP=$(echo $LINK | sed 's|^.*/||')
+    local FILENAME_IMG=$(echo $FILENAME_ZIP | sed 's|\.zip|\.img|')
+    echo -e '\ncurrent raspbian version: '$FILENAME_ZIP
     if [ ! -f $FILENAME_IMG ]; then
-        echo -e '\n'$FILENAME_IMG' not found' && \
+        echo -e '\n'$FILENAME_IMG' not found'
         if [ ! -f $FILENAME_ZIP ]; then
-            echo -e '\ndownloading '$LINK && \
+            echo -e '\ndownloading '$LINK
             wget $LINK
-        fi && \
+        fi
         if [ ! -f $FILENAME_ZIP'.'$CHECKSUM_ALG ]; then
-            echo -e '\ndownloading '$LINK'.'$CHECKSUM_ALG && \
+            echo -e '\ndownloading '$LINK'.'$CHECKSUM_ALG
             wget $LINK'.'$CHECKSUM_ALG
-        fi && \
-        echo -en '\nverifying checksum: ' && \
-        ${CHECKSUM_ALG}sum -c "${FILENAME_ZIP}.${CHECKSUM_ALG}" && \
-        echo -en '\nunzipping ' && \
+        fi
+        echo -en '\nverifying checksum: '
+        ${CHECKSUM_ALG}sum -c "${FILENAME_ZIP}.${CHECKSUM_ALG}"
+        echo -en '\nunzipping '
         unzip $FILENAME_ZIP || return 1
     fi
     RASPBIAN_FILENAME=$(pwd)'/'$FILENAME_IMG
-}
-
-function download_kernel(){
-    if [ ! -d qemu-rpi-kernel ]; then
-        git clone https://github.com/dhruvvyas90/qemu-rpi-kernel.git
-    fi && \
-    cd qemu-rpi-kernel && \
-    git checkout master && \
-    git pull && \
-    cd ..
 }
 
 function mount_image(){
@@ -109,61 +101,62 @@ function read_password(){
     PASSWORD=$PASSWORD1
 }
 
-install_prerequisites && \
-echo && \
-echo "####################################################" && \
-echo "###   Customization Script for Raspbian Images   ###" && \
-echo "####################################################" && \
-echo && \
-echo '$MOUNTDIR='$MOUNTDIR && \
-echo '$AUTHORIZED_KEYS_FILE='$AUTHORIZED_KEYS_FILE && \
-echo '$RPI_USERNAME='$RPI_USERNAME && \
-echo '$RPI_HOSTNAMES:' && \
+git submodule update --init --recursive
+install_prerequisites
+echo
+echo "####################################################"
+echo "###   Customization Script for Raspbian Images   ###"
+echo "####################################################"
+echo
+echo '$MOUNTDIR='$MOUNTDIR
+echo '$AUTHORIZED_KEYS_FILE='$AUTHORIZED_KEYS_FILE
+echo '$RPI_USERNAME='$RPI_USERNAME
+echo '$RPI_HOSTNAMES:'
 for i in ${RPI_HOSTNAMES[@]}; do
     echo '  '$i
-done && \
-echo && \
-echo "Please input password for $RPI_USERNAME" && \
-read_password && \
-download_raspbian $RASPBIAN_DOWNLOAD_URL && \
+done
+echo
+echo "Please input password for $RPI_USERNAME"
+read_password
+download_raspbian $RASPBIAN_DOWNLOAD_URL
 for RPI_HOSTNAME in ${RPI_HOSTNAMES[@]}; do
-    echo -e '\n\nsetting up '$RPI_HOSTNAME && \
-    echo 'copying image to '${RPI_HOSTNAME}.img && \
-    cp $RASPBIAN_FILENAME ${RPI_HOSTNAME}.img && \
-    mount_image ${RPI_HOSTNAME}.img $MOUNTDIR && \
+    echo -e '\n\nsetting up '$RPI_HOSTNAME
+    echo 'copying image to '${RPI_HOSTNAME}.img
+    cp $RASPBIAN_FILENAME ${RPI_HOSTNAME}.img
+    mount_image ${RPI_HOSTNAME}.img $MOUNTDIR
     sudo proot -q qemu-arm -S $MOUNTDIR <<< '\
-        echo "# echo '$RPI_HOSTNAME' > /etc/hostname" && \
-        echo '$RPI_HOSTNAME' > /etc/hostname && \
-        echo "# adduser --disabled-password --gecos "" '$RPI_USERNAME'" && \
-        adduser --disabled-password --gecos "" '$RPI_USERNAME' && \
-        echo "# echo "'$RPI_USERNAME':*******" | chpasswd" && \
-        echo "'$RPI_USERNAME':'$PASSWORD'" | chpasswd && \
-        echo "# usermod -a -G sudo '$RPI_USERNAME'" && \
-        usermod -a -G sudo '$RPI_USERNAME' && \
-        echo "# userdel pi" && \
-        userdel pi && \
-        echo "# rm -rf /home/pi" && \
-        rm -rf /home/pi && \
-        echo "# touch /boot/ssh" && \
+        echo "# echo '$RPI_HOSTNAME' > /etc/hostname"
+        echo '$RPI_HOSTNAME' > /etc/hostname
+        echo "# adduser --disabled-password --gecos \"\" '$RPI_USERNAME'"
+        adduser --disabled-password --gecos "" '$RPI_USERNAME'
+        echo "# echo "'$RPI_USERNAME':*******" | chpasswd"
+        echo "'$RPI_USERNAME':'$PASSWORD'" | chpasswd
+        echo "# usermod -a -G sudo '$RPI_USERNAME'"
+        usermod -a -G sudo '$RPI_USERNAME'
+        echo "# userdel pi"
+        userdel pi
+        echo "# rm -rf /home/pi"
+        rm -rf /home/pi
+        echo "# touch /boot/ssh"
         touch /boot/ssh
-    ' && \
-    echo "\$ sudo mkdir -p $MOUNTDIR/home/$RPI_USERNAME/.ssh" && \
-    sudo mkdir -p $MOUNTDIR/home/$RPI_USERNAME/.ssh && \
-    echo "\$ sudo chown -R $USER $MOUNTDIR/home/$RPI_USERNAME/" && \
-    sudo chown -R $USER $MOUNTDIR/home/$RPI_USERNAME/ && \
-    echo "\$ cp -R $AUTHORIZED_KEYS_FILE $MOUNTDIR/home/$RPI_USERNAME/.ssh/" && \
-    cp -R $AUTHORIZED_KEYS_FILE $MOUNTDIR/home/$RPI_USERNAME/.ssh/ && \
+    '
+    echo "\$ sudo mkdir -p $MOUNTDIR/home/$RPI_USERNAME/.ssh"
+    sudo mkdir -p $MOUNTDIR/home/$RPI_USERNAME/.ssh
+    echo "\$ sudo chown -R $USER $MOUNTDIR/home/$RPI_USERNAME/"
+    sudo chown -R $USER $MOUNTDIR/home/$RPI_USERNAME/
+    echo "\$ cp -R $AUTHORIZED_KEYS_FILE $MOUNTDIR/home/$RPI_USERNAME/.ssh/"
+    cp -R $AUTHORIZED_KEYS_FILE $MOUNTDIR/home/$RPI_USERNAME/.ssh/
     if [ -f wpa_supplicant.conf ]; then
-        echo "\$ cp -R wpa_supplicant.conf $MOUNTDIR/boot/" && \
-        sudo cp -R wpa_supplicant.conf $MOUNTDIR/boot/ && \
-        echo "\$ sudo chown -R $USER $MOUNTDIR/boot/wpa_supplicant.conf" && \
+        echo "\$ cp -R wpa_supplicant.conf $MOUNTDIR/boot/"
+        sudo cp -R wpa_supplicant.conf $MOUNTDIR/boot/
+        echo "\$ sudo chown -R $USER $MOUNTDIR/boot/wpa_supplicant.conf"
         sudo chown -R $USER $MOUNTDIR/boot/wpa_supplicant.conf
-    fi && \
+    fi
     sudo proot -q qemu-arm -S $MOUNTDIR <<< '\
-        echo "# chown -R '$RPI_USERNAME':'$RPI_USERNAME' /home/'$RPI_USERNAME'" && \
+        echo "# chown -R '$RPI_USERNAME':'$RPI_USERNAME' /home/'$RPI_USERNAME'"
         chown -R '$RPI_USERNAME':'$RPI_USERNAME' /home/'$RPI_USERNAME'
-    ' && \
-    echo "\$ sudo umount $MOUNTDIR" && \
+    '
+    echo "\$ sudo umount $MOUNTDIR"
     sudo umount $MOUNTDIR
 done
 
