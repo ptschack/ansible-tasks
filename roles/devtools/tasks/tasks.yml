@@ -58,6 +58,7 @@
     - alanwalk.markdown-toc
     - davidanson.vscode-markdownlint
     - coolbear.systemd-unit-file
+    - ms-vscode.powershell
 
 - name: configure git
   git_config:
