@@ -59,6 +59,7 @@
     - davidanson.vscode-markdownlint
     - coolbear.systemd-unit-file
     - ms-vscode.powershell
+    - aeschli.vscode-css-formatter
 
 - name: configure git
   git_config:
