@@ -46,6 +46,7 @@
   shell: "code --install-extension {{ item }}"
   with_items:
     - redhat.java
+    - redhat.vscode-yaml
     - ms-python.python
     - eamodio.gitlens
     - peterjausovec.vscode-docker
