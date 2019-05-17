@@ -6,7 +6,7 @@
   with_items:
     - openssh-server
 
-# when updated to ansible > 2.8, do this:
+# weird: this task hangs
 #- name: generate ssh keys
 #  openssh_keypair:
 #    path: ~/.ssh/id_rsa

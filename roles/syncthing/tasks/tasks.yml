@@ -24,6 +24,10 @@
   ignore_errors: yes
   register: copied_syncthing_config
 
+- name: whoami
+  command: whoami
+  register: whoami
+
 - name: configure values in config.xml
   xml:
     path: ~/.config/syncthing/config.xml
@@ -31,7 +35,7 @@
     value: "{{ item.value }}"
   with_items:
     - { xpath: "/configuration/gui/address", value: "0.0.0.0:8384" }
-    - { xpath: "/configuration/gui/user", value: "{{ ansible_user }}" }
+    - { xpath: "/configuration/gui/user", value: "{{ whoami.stdout }}" } # weird: ansible_user does not work here after updating to 2.8
     - { xpath: "/configuration/gui/theme", value: "dark" }
     - { xpath: "/configuration/options/startBrowser", value: "false" }
     - { xpath: "/configuration/options/natEnabled", value: "true" }
