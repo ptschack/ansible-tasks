@@ -1,0 +1,78 @@
+- name: get download url for zed attack proxy
+  shell: echo 'https://github.com'$(curl -si https://github.com/zaproxy/zaproxy/releases/ | grep '.*href.*releases/download' | head -n1 | sed 's|^.*href="||' | sed 's|".*$||')
+  register: zap_dl_url
+  delegate_to: localhost
+
+- name: "downloading {{ zap_dl_url.stdout }}"
+  get_url:
+    url: "{{ zap_dl_url.stdout }}"
+    dest: /tmp/
+    use_proxy: yes
+  environment:
+    http_proxy: http://localhost:3128
+    https_proxy: http://localhost:3128
+  register: zap_dl
+  delegate_to: localhost
+
+- name: install hydra
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - hydra
+
+- name: rm /opt/zaproxy
+  become: yes
+  file:
+    path: /opt/zaproxy
+    state: absent
+
+- name: "unarchive {{ zap_dl.dest }} to /tmp/"
+  become: yes
+  unarchive:
+    src: "{{ zap_dl.dest }}"
+    dest: /tmp/
+    list_files: yes
+  register: zap_unzipped
+
+- name: "copy /tmp/{{ zap_unzipped.files[0] }} to /opt/zaproxy"
+  become: yes
+  copy:
+    src: "/tmp/{{ zap_unzipped.files[0] }}"
+    dest: /opt/zaproxy
+    mode: a+r
+
+- name: chmod a+r /opt/zaproxy
+  become: yes
+  file:
+    path: /opt/zaproxy
+    owner: root
+    group: root
+    recurse: yes
+    mode: a+r
+
+- name: chmod a+r /opt/zaproxy
+  become: yes
+  shell: for i in $(find /opt/zaproxy -type d); do chmod a+x $i; done
+
+- name: chmod a+x /opt/zaproxy/zap.sh
+  become: yes
+  file:
+    path: /opt/zaproxy/zap.sh
+    owner: root
+    group: root
+    mode: a+x
+
+- name: "delete /tmp/{{ zap_unzipped.files[0] }}"
+  become: yes
+  file:
+    path: "/tmp/{{ zap_unzipped.files[0] }}"
+    state: absent
+
+- name: "delete {{ zap_dl.dest }}"
+  become: yes
+  file:
+    path: "{{ zap_dl.dest }}"
+    state: absent
+  delegate_to: localhost
