@@ -1,6 +1,16 @@
-- set_fact: "role_name_included_var=role_{{ role_name | regex_replace('[^A-Za-z]', '_') }}_included"
+- include_tasks: "{{ ansible_distribution }}.yml"
 
-- include_tasks: tasks.yml
-  when: "hostvars[inventory_hostname][role_name_included_var] | default(0) < 1"
+- name: install software
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - gimp
+    - spectacle
+    - vlc
+    - youtube-dl
+    - kdenlive
 
-- set_fact: "{{ role_name_included_var }}=1"
+- name: update youtube-dl -U
+  command: youtube-dl -U

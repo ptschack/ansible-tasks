@@ -1,6 +1,73 @@
-- set_fact: "role_name_included_var=role_{{ role_name | regex_replace('[^A-Za-z]', '_') }}_included"
+- name: install software
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - gnupg
 
-- include_tasks: tasks.yml
-  when: "hostvars[inventory_hostname][role_name_included_var] | default(0) < 1"
+- name: get firefox link
+  shell: |
+    curl -si "https://download.mozilla.org/?product=firefox-latest-ssl&os={{ FF_SYSTEM_TYPE }}&lang={{ FF_LOCALE }}" \
+    | grep href \
+    | sed 's|^.*href="||' \
+    | sed 's|".*$||'
+  register: firefox_link
+  delegate_to: localhost
 
-- set_fact: "{{ role_name_included_var }}=1"
+- name: download firefox
+  become: yes
+  get_url:
+    url: "{{ firefox_link.stdout }}"
+    dest: /opt/
+  register: firefox_download
+  delegate_to: localhost
+
+- name: download firefox signature
+  become: yes
+  get_url:
+    url: "{{ firefox_link.stdout }}.asc"
+    dest: /opt/
+  register: firefox_download_sig
+  delegate_to: localhost
+
+- name: import gpg key
+  command: "gpg --recv-keys {{ MOZILLA_PUBKEY }}"
+
+- name: verify download
+  command: "gpg --verify {{ firefox_download_sig.dest }} {{ firefox_download.dest }}"
+
+- name: rm -rf /opt/firefox.old
+  become: yes
+  file:
+    path: /opt/firefox.old
+    state: absent
+
+- name: mv /opt/firefox /opt/firefox.old
+  become: yes
+  command: mv /opt/firefox /opt/firefox.old
+  ignore_errors: yes
+
+- name: extract firefox into /opt/
+  become: yes
+  unarchive:
+    src: "{{ firefox_download.dest }}"
+    dest: /opt/
+    remote_src: yes
+
+- name: link firefox
+  file:
+    src: /opt/firefox/firefox
+    dest: /usr/local/bin/firefox
+    state: link
+
+- name: remove firefox download
+  become: yes
+  file:
+    path: "{{ firefox_download.dest }}"
+    state: absent
+
+- name: remove firefox signature
+  become: yes
+  file:
+    path: "{{ firefox_download.dest }}.asc"
+    state: absent

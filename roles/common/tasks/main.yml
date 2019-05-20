@@ -1,6 +1,15 @@
-- set_fact: "role_name_included_var=role_{{ role_name | regex_replace('[^A-Za-z]', '_') }}_included"
+- include_tasks: "{{ ansible_distribution }}.yml"
 
-- include_tasks: tasks.yml
-  when: "hostvars[inventory_hostname][role_name_included_var] | default(0) < 1"
+- include_tasks: "{{ ansible_pkg_mgr }}.yml"
 
-- set_fact: "{{ role_name_included_var }}=1"
+- name: install basic packages
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - htop
+    - nano
+    - curl
+    - wget
+    - screen

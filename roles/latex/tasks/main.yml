@@ -1,6 +1,28 @@
-- set_fact: "role_name_included_var=role_{{ role_name | regex_replace('[^A-Za-z]', '_') }}_included"
+- name: install software
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - kile
+    - kbibtex
 
-- include_tasks: tasks.yml
-  when: "hostvars[inventory_hostname][role_name_included_var] | default(0) < 1"
+- name: install software
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - texlive-scheme-full
+  when:
+    - ansible_distribution == "Fedora"
 
-- set_fact: "{{ role_name_included_var }}=1"
+- name: install software
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - texlive-full
+  when:
+    - ansible_distribution == "Debian"
