@@ -1,5 +1,4 @@
-- include_tasks: apt.yml
-  when: pm_apt.rc == 0
+- include_tasks: "{{ ansible_pkg_mgr }}.yml"
 
 - name: install
   become: true
@@ -24,6 +23,7 @@
   ignore_errors: yes
   register: copied_syncthing_config
 
+# weird: ansible_user does not work after updating to 2.8
 - name: whoami
   command: whoami
   register: whoami
@@ -35,7 +35,7 @@
     value: "{{ item.value }}"
   with_items:
     - { xpath: "/configuration/gui/address", value: "0.0.0.0:8384" }
-    - { xpath: "/configuration/gui/user", value: "{{ whoami.stdout }}" } # weird: ansible_user does not work here after updating to 2.8
+    - { xpath: "/configuration/gui/user", value: "{{ whoami.stdout }}" } # weird: ansible_user does not work after updating to 2.8
     - { xpath: "/configuration/gui/theme", value: "dark" }
     - { xpath: "/configuration/options/startBrowser", value: "false" }
     - { xpath: "/configuration/options/natEnabled", value: "true" }

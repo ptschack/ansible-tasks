@@ -1,11 +1,4 @@
-- include_tasks: vscode_dnf.yml
-  when: pm_dnf.rc == 0
-
-- include_tasks: vscode_apt.yml
-  when: pm_apt.rc == 0
-
-- include_tasks: vscode_apt.yml
-  when: pm_dnf.rc != 0 and pm_yum.rc == 0
+- include_tasks: "{{ ansible_pkg_mgr }}.yml"
 
 - name: install software
   become: yes
@@ -31,12 +24,14 @@
     state: present
   when: ansible_distribution == "Fedora"
 
-# when updated to ansible > 2.8, do this:
-#- name: generate ssh keys
-#  openssh_keypair:
+# weird: this task hangs
+# - name: generate ssh keys
+#   openssh_keypair:
 #    path: ~/.ssh/id_rsa
+#    state: present
+#    type: rsa
 
-# instead of this:
+# the old way doesn't
 - name: generate ssh keys
   shell: ssh-keygen -t rsa -f ~/.ssh/id_rsa -b 4096
   args:

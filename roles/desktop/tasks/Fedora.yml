@@ -1,0 +1,7 @@
+- name: install KDE on Fedora
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - "@kde-desktop"

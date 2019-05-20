@@ -1,48 +1,6 @@
-- name: check for package manager apt
-  shell: which apt
-  register: pm_apt
-  ignore_errors: yes
+- include_tasks: "{{ ansible_distribution }}.yml"
 
-- name: check for package manager dnf
-  shell: which dnf
-  register: pm_dnf
-  ignore_errors: yes
-
-- name: check for package manager yum
-  shell: which yum
-  register: pm_yum
-  ignore_errors: yes
-
-- name: check if raspbian
-  shell: cat /etc/os-release | grep 'ID=raspbian'
-  register: os_raspbian
-  ignore_errors: yes
-
-- include_tasks: debian.yml
-  when:
-    - ansible_distribution == "Debian"
-    - os_raspbian.rc != 0
-
-- include_tasks: raspbian.yml
-  when: os_raspbian.rc == 0
-
-- include_tasks: fedora.yml
-  when:
-    - ansible_distribution == "Fedora"
-  
-- name: fail when no package manager found
-  fail:
-    msg: "Can't find package manager (dnf/yum/apt)"
-  when: pm_dnf.rc != 0 and pm_apt.rc != 0 and pm_yum.rc != 0
-
-- include_tasks: dnf.yml
-  when: pm_dnf.rc == 0
-
-- include_tasks: apt.yml
-  when: pm_apt.rc == 0
-
-- include_tasks: yum.yml
-  when: pm_dnf.rc != 0 and pm_yum == 0
+- include_tasks: "{{ ansible_pkg_mgr }}.yml"
 
 - name: install basic packages
   become: yes

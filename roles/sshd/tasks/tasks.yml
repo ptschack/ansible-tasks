@@ -7,11 +7,13 @@
     - openssh-server
 
 # weird: this task hangs
-#- name: generate ssh keys
-#  openssh_keypair:
+# - name: generate ssh keys
+#   openssh_keypair:
 #    path: ~/.ssh/id_rsa
+#    state: present
+#    type: rsa
 
-# instead of this:
+# the old way doesn't
 - name: generate ssh keys
   shell: ssh-keygen -t rsa -f ~/.ssh/id_rsa -b 4096 -N ''
   args:

@@ -1,3 +1,5 @@
+- include_tasks: "{{ ansible_pkg_mgr }}.yml"
+
 - name: install virtualbox dependencies
   become: yes
   package:
@@ -17,37 +19,18 @@
     - qt5-qtx11extras
     - libxkbcommon
     - vagrant
-  when:
-    - ansible_distribution == "Fedora"
-
-- name: install vagrant
-  become: yes
-  package:
-    name: vagrant
-    state: present
-
-- include_tasks: vbox_dnf.yml
-  when: pm_dnf.rc == 0
-
-- include_tasks: vbox_apt.yml
-  when: pm_apt.rc == 0
-
-- include_tasks: vbox_yum.yml
-  when: pm_dnf.rc != 0 and pm_yum == 0
-
-- name: install Virtualbox-6.0
-  become: yes
-  package:
-    name: VirtualBox-6.0
-    state: latest
+    - VirtualBox-6.0
   when:
     - ansible_distribution == "Fedora"
 
 - name: install virtualbox-6.0
   become: yes
   package:
-    name: virtualbox-6.0
-    state: latest
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - vagrant
+    - virtualbox-6.0
   when:
     - ansible_distribution == "Debian"
 

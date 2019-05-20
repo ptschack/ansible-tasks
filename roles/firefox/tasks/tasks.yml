@@ -1,7 +1,9 @@
 - name: install software
   package:
-    name: gnupg
+    name: "{{ item }}"
     state: latest
+  with_items:
+    - gnupg
 
 - name: get firefox link
   shell: |
@@ -29,7 +31,7 @@
   delegate_to: localhost
 
 - name: import gpg key
-  command: gpg --recv-keys BBBEBDBB24C6F355
+  command: "gpg --recv-keys {{ MOZILLA_PUBKEY }}"
 
 - name: verify download
   command: "gpg --verify {{ firefox_download_sig.dest }} {{ firefox_download.dest }}"
