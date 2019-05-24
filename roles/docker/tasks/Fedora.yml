@@ -1,0 +1,17 @@
+- name: add docker gpg key
+  become: yes
+  rpm_key:
+    state: present
+    key: https://download.docker.com/linux/fedora/gpg
+
+- name: add docker repo
+  become: yes
+  get_url:
+    url: https://download.docker.com/linux/fedora/docker-ce.repo
+    dest: /etc/yum.repos.d/
+    mode: a+r
+
+- name: update dnf cache
+  become: yes
+  dnf:
+    update_cache: yes
