@@ -1,0 +1,55 @@
+- include_tasks: "{{ ansible_distribution }}.yml"
+
+- name: uninstall old versions
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - docker
+    - docker-common
+    - container-selinux
+    - docker-selinux
+    - docker-engine
+
+- name: install software
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - docker-ce
+
+- name: ensure /etc/docker exists
+  file:
+    path: /etc/docker
+    state: directory
+    mode: a+r
+
+- name: ensure group docker exists
+  become: yes
+  group:
+    name: docker
+    state: present
+
+- name: add user to docker group
+  become: yes
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+
+- name: start docker service
+  become: yes
+  service:
+    name: docker
+    state: restarted
+    enabled: yes
+
+# - name: chown /var/run/docker.sock
+#   become: yes
+#   file:
+#     path: /var/run/docker.sock
+#     owner: root
+#     group: docker
+#     mode: g+rwx
