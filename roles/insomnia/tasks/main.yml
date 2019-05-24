@@ -1,0 +1,17 @@
+- name: install snap
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - snapd
+
+# use this when updated to ansible >= 2.8
+# - name: install 
+#   snap:
+#     name: insomnia
+#     state: present
+
+- name: install insomnia
+  become: yes
+  command: snap install insomnia
