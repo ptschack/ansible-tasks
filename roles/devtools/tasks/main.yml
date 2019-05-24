@@ -1,6 +1,84 @@
-- set_fact: "role_name_included_var=role_{{ role_name | regex_replace('[^A-Za-z]', '_') }}_included"
+- include_tasks: "{{ ansible_pkg_mgr }}.yml"
 
-- include_tasks: tasks.yml
-  when: "hostvars[inventory_hostname][role_name_included_var] | default(0) < 1"
+- name: install software
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - git
+    - kdiff3
+    - code
 
-- set_fact: "{{ role_name_included_var }}=1"
+- name: install software
+  become: yes
+  package:
+    name: openssh-client
+    state: present
+  when: ansible_distribution == "Debian"
+
+- name: install software
+  become: yes
+  package:
+    name: openssh
+    state: present
+  when: ansible_distribution == "Fedora"
+
+# weird: this task hangs
+# - name: generate ssh keys
+#   openssh_keypair:
+#    path: ~/.ssh/id_rsa
+#    state: present
+#    type: rsa
+
+# the old way doesn't
+- name: generate ssh keys
+  shell: ssh-keygen -t rsa -f ~/.ssh/id_rsa -b 4096
+  args:
+    creates: ~/.ssh/id_rsa
+
+- name: add vscode extensions
+  shell: "code --install-extension {{ item }}"
+  with_items:
+    - redhat.java
+    - redhat.vscode-yaml
+    - ms-python.python
+    - eamodio.gitlens
+    - peterjausovec.vscode-docker
+    - redhat.vscode-yaml
+    - davidanson.vscode-markdownlint
+    - james-yu.latex-workshop
+    - dotjoshjohnson.xml
+    - samuelcolvin.jinjahtml
+    - ivory-lab.jenkinsfile-support
+    - alanwalk.markdown-toc
+    - davidanson.vscode-markdownlint
+    - coolbear.systemd-unit-file
+    - ms-vscode.powershell
+    - aeschli.vscode-css-formatter
+
+- name: configure git
+  git_config:
+    name: "{{ item.name }}"
+    scope: global
+    value: "{{ item.value }}"
+  with_items:
+    - { name: 'credential.helper', value: 'cache' }
+    - { name: 'user.name', value: "{{ git_fullName }}" }
+    - { name: 'user.email', value: "{{ git_email }}" }
+    - { name: 'merge.tool', value: 'kdiff3' }
+    - { name: 'mergetool.kdiff3.path', value: '/usr/bin/kdiff3' }
+    - { name: 'mergetool.kdiff3.trustExitCode', value: 'false' }
+    - { name: 'diff.guitool', value: 'kdiff3' }
+    - { name: 'difftool.kdiff3.path', value: '/usr/bin/kdiff3' }
+    - { name: 'difftool.kdiff3.trustExitCode', value: 'false' }
+    - { name: 'alias.pl', value: 'pull' }
+    - { name: 'alias.fe', value: 'fetch' }
+    - { name: 'alias.ps', value: 'push' }
+    - { name: 'alias.co', value: 'checkout' }
+    - { name: 'alias.s', value: 'status' }
+    - { name: 'alias.cl', value: 'clean -dfq' }
+    - { name: 'alias.clone', value: 'clone --recursive' }
+    - { name: 'alias.re', value: 'reset --hard HEAD' }
+    - { name: 'alias.smui', value: 'submodule update --init --recursive' }
+    - { name: 'fetch.prune', value: 'true' }

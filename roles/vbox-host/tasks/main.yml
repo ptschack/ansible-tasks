@@ -1,6 +1,42 @@
-- set_fact: "role_name_included_var=role_{{ role_name | regex_replace('[^A-Za-z]', '_') }}_included"
+- include_tasks: "{{ ansible_pkg_mgr }}.yml"
 
-- include_tasks: tasks.yml
-  when: "hostvars[inventory_hostname][role_name_included_var] | default(0) < 1"
+- name: install virtualbox dependencies
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - binutils
+    - gcc
+    - make
+    - patch
+    - libgomp
+    - glibc-headers
+    - glibc-devel
+    - kernel-headers
+    - kernel-devel
+    - dkms
+    - qt5-qtx11extras
+    - libxkbcommon
+    - vagrant
+    - VirtualBox-6.0
+  when:
+    - ansible_distribution == "Fedora"
 
-- set_fact: "{{ role_name_included_var }}=1"
+- name: install virtualbox-6.0
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - vagrant
+    - virtualbox-6.0
+  when:
+    - ansible_distribution == "Debian"
+
+- name: add user to vbox group
+  become: yes
+  user:
+    name: "{{ ansible_user }}"
+    groups: vboxusers
+    append: yes

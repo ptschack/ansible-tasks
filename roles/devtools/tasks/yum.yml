@@ -11,7 +11,7 @@
     dest: /etc/yum.repos.d/vscode.repo
     mode: a+r
 
-- name: update dnf cache
+- name: update yum cache
   become: yes
   yum:
     update_cache: yes

@@ -1,3 +1,11 @@
+- name: check if raspbian
+  shell: cat /etc/os-release | grep 'ID=raspbian'
+  register: os_raspbian
+  ignore_errors: yes
+
+- include_tasks: Raspbian.yml
+  when: os_raspbian.rc == 0
+
 - name: install keyrings
   become: yes
   package:
@@ -6,6 +14,7 @@
   with_items:
     - debian-keyring
     - debian-archive-keyring
+  when: os_raspbian.rc != 0
 
 - name: add repositories
   become: yes
@@ -17,3 +26,4 @@
     - 'deb http://security.debian.org/ stable/updates main contrib non-free'
     - 'deb http://ftp.de.debian.org/debian/ stable-updates main contrib non-free'
     - 'deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib'
+  when: os_raspbian.rc != 0
