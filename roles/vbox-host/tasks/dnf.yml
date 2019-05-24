@@ -1,1 +1,1 @@
-- include_tasks: vbox_yum.yml
+- include_tasks: yum.yml
