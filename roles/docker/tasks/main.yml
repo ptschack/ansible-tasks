@@ -1,5 +1,3 @@
-- include_tasks: "{{ ansible_distribution }}.yml"
-
 - name: uninstall old versions
   become: yes
   package:
@@ -12,15 +10,10 @@
     - docker-selinux
     - docker-engine
 
-- name: install software
-  become: yes
-  package:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - docker-ce
+- include_tasks: "{{ ansible_distribution }}.yml"
 
 - name: ensure /etc/docker exists
+  become: yes
   file:
     path: /etc/docker
     state: directory

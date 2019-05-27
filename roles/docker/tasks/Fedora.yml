@@ -15,3 +15,11 @@
   become: yes
   dnf:
     update_cache: yes
+
+- name: install software
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - docker-ce
