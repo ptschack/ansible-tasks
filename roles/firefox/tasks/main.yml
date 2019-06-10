@@ -14,60 +14,95 @@
   register: firefox_link
   delegate_to: localhost
 
-- name: download firefox
-  become: yes
-  get_url:
-    url: "{{ firefox_link.stdout }}"
-    dest: /opt/
-  register: firefox_download
+- name: get firefox archive name
+  shell: "echo {{ firefox_link.stdout }} | sed 's|.*/||'"
+  register: firefox_filename
+
+- name: "stat {{ firefox_filename.stdout }}"
+  stat:
+    path: "/tmp/{{ firefox_filename.stdout }}"
+  register: firefox_archive_file
   delegate_to: localhost
 
-- name: download firefox signature
-  become: yes
-  get_url:
-    url: "{{ firefox_link.stdout }}.asc"
-    dest: /opt/
-  register: firefox_download_sig
-  delegate_to: localhost
+- name: stat /opt/firefox/ANSIBLE_MANAGED_VERSION.txt
+  stat:
+    path: /opt/firefox/ANSIBLE_MANAGED_VERSION.txt
+  register: firefox_version_file
 
-- name: import gpg key
-  command: "gpg --recv-keys {{ MOZILLA_PUBKEY }}"
+- name: get installed version
+  shell: cat /opt/firefox/ANSIBLE_MANAGED_VERSION.txt
+  register: firefox_installed_version
+  when: firefox_version_file.stat.exists
 
-- name: verify download
-  command: "gpg --verify {{ firefox_download_sig.dest }} {{ firefox_download.dest }}"
+- name: "download & install firefox"
+  block:
+  - name: "download {{ firefox_link.stdout }}"
+    become: yes
+    get_url:
+      url: "{{ firefox_link.stdout }}"
+      dest: /tmp/
+    register: firefox_download
+    delegate_to: localhost
+    when: firefox_archive_file.stat.exists != true
 
-- name: rm -rf /opt/firefox.old
-  become: yes
-  file:
-    path: /opt/firefox.old
-    state: absent
+  - name: "download {{ firefox_link.stdout }}.asc"
+    become: yes
+    get_url:
+      url: "{{ firefox_link.stdout }}.asc"
+      dest: /tmp/
+    register: firefox_download_sig
+    delegate_to: localhost
 
-- name: mv /opt/firefox /opt/firefox.old
-  become: yes
-  command: mv /opt/firefox /opt/firefox.old
-  ignore_errors: yes
+  - name: import gpg key
+    command: "gpg --recv-keys {{ MOZILLA_PUBKEY }}"
 
-- name: extract firefox into /opt/
-  become: yes
-  unarchive:
-    src: "{{ firefox_download.dest }}"
-    dest: /opt/
-    remote_src: yes
+  - name: verify download
+    command: "gpg --verify {{ firefox_download_sig.dest }} {{ firefox_download.dest }}"
 
-- name: link firefox
-  file:
-    src: /opt/firefox/firefox
-    dest: /usr/local/bin/firefox
-    state: link
+  - name: rm -rf /opt/firefox.old
+    become: yes
+    file:
+      path: /opt/firefox.old
+      state: absent
 
-- name: remove firefox download
-  become: yes
-  file:
-    path: "{{ firefox_download.dest }}"
-    state: absent
+  - name: stat /opt/firefox
+    stat:
+      path: /opt/firefox
+    register: firefox_old
 
-- name: remove firefox signature
-  become: yes
-  file:
-    path: "{{ firefox_download.dest }}.asc"
-    state: absent
+  - name: mv /opt/firefox /opt/firefox.old
+    become: yes
+    command: mv /opt/firefox /opt/firefox.old
+    when: firefox_old.stat.exists
+
+  - name: "extract {{ firefox_download.dest }} into /opt/"
+    become: yes
+    unarchive:
+      src: "{{ firefox_download.dest }}"
+      dest: /opt/
+      remote_src: yes
+
+  - name: "echo {{ firefox_filename.stdout }} > /opt/firefox/ANSIBLE_MANAGED_VERSION.txt"
+    become: yes
+    shell: "echo {{ firefox_filename.stdout }} > /opt/firefox/ANSIBLE_MANAGED_VERSION.txt"
+
+  - name: link firefox
+    file:
+      src: /opt/firefox/firefox
+      dest: /usr/local/bin/firefox
+      state: link
+
+  - name: "rm {{ firefox_download.dest }}"
+    become: yes
+    file:
+      path: "{{ firefox_download.dest }}"
+      state: absent
+
+  - name: "rm {{ firefox_download.dest }}.asc" 
+    become: yes
+    file:
+      path: "{{ firefox_download.dest }}.asc"
+      state: absent
+
+  when: firefox_installed_version.stdout is not defined
+        or firefox_installed_version.stdout != firefox_filename.stdout

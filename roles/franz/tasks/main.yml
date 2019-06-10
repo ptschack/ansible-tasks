@@ -79,7 +79,7 @@
 
   - name: save version
     become: yes
-    shell: "echo {{ franz_filename }} > /opt/franz/ANSIBLE_MANAGED_VERSION.txt"
+    shell: "echo {{ franz_filename.stdout }} > /opt/franz/ANSIBLE_MANAGED_VERSION.txt"
 
   - name: link franz
     become: yes

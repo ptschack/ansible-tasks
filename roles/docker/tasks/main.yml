@@ -38,11 +38,3 @@
     name: docker
     state: restarted
     enabled: yes
-
-# - name: chown /var/run/docker.sock
-#   become: yes
-#   file:
-#     path: /var/run/docker.sock
-#     owner: root
-#     group: docker
-#     mode: g+rwx
