@@ -1,0 +1,5 @@
+- name: install basic packages
+  become: yes
+  package:
+    name: firefox
+    state: latest
