@@ -1,0 +1,105 @@
+- name: get torbrowser link
+  shell: |
+    curl -s https://www.torproject.org/download/ \
+    | grep downloadLink \
+    | grep '\.tar' \
+    | sed 's|^.*href="||' \
+    | sed 's|".*$||'
+  register: torbrowser_link
+  delegate_to: localhost
+
+- name: get torbrowser archive name
+  shell: "echo {{ torbrowser_link.stdout }} | sed 's|.*/||'"
+  register: torbrowser_filename
+
+- name: "stat {{ torbrowser_filename.stdout }}"
+  stat:
+    path: "/tmp/{{ torbrowser_filename.stdout }}"
+  register: torbrowser_archive_file
+  delegate_to: localhost
+
+- name: stat /opt/tor-browser_en-US/ANSIBLE_MANAGED_VERSION.txt
+  stat:
+    path: /opt/tor-browser_en-US/ANSIBLE_MANAGED_VERSION.txt
+  register: torbrowser_version_file
+
+- name: get installed version
+  shell: cat /opt/tor-browser_en-US/ANSIBLE_MANAGED_VERSION.txt
+  register: torbrowser_installed_version
+  when: torbrowser_version_file.stat.exists
+
+- name: "download & install torbrowser"
+  block:
+  - name: "download {{ torbrowser_link.stdout }}"
+    become: yes
+    get_url:
+      url: "{{ torbrowser_link.stdout }}"
+      dest: /tmp/
+    register: torbrowser_download
+    delegate_to: localhost
+    when: torbrowser_archive_file.stat.exists != true
+
+  - name: "download {{ torbrowser_link.stdout }}.asc"
+    become: yes
+    get_url:
+      url: "{{ torbrowser_link.stdout }}.asc"
+      dest: /tmp/
+    register: torbrowser_download_sig
+    delegate_to: localhost
+
+  - name: import gpg key
+    command: "gpg --recv-keys {{ TOR_PUBKEY }}"
+
+  - name: verify download
+    command: "gpg --verify {{ torbrowser_download_sig.dest }} {{ torbrowser_download.dest }}"
+
+  - name: rm -rf /opt/tor-browser_en-US.old
+    become: yes
+    file:
+      path: /opt/tor-browser_en-US.old
+      state: absent
+
+  - name: stat /opt/tor-browser_en-US
+    stat:
+      path: /opt/tor-browser_en-US
+    register: torbrowser_old
+
+  - name: mv /opt/tor-browser_en-US /opt/tor-browser_en-US.old
+    become: yes
+    command: mv /opt/tor-browser_en-US /opt/tor-browser_en-US.old
+    when: torbrowser_old.stat.exists
+
+  - name: "extract {{ torbrowser_download.dest }} into /opt/"
+    become: yes
+    unarchive:
+      src: "{{ torbrowser_download.dest }}"
+      dest: /opt/
+      remote_src: yes
+      mode: a+r
+      owner: "{{ ansible_user }}"
+
+  - name: "echo {{ torbrowser_filename.stdout }} > /opt/tor-browser_en-US/ANSIBLE_MANAGED_VERSION.txt"
+    become: yes
+    shell: "echo {{ torbrowser_filename.stdout }} > /opt/tor-browser_en-US/ANSIBLE_MANAGED_VERSION.txt"
+
+  - name: link torbrowser
+    become: yes
+    copy:
+      src: torbrowser
+      dest: /usr/local/bin/torbrowser
+      mode: a+rx
+
+  - name: "rm {{ torbrowser_download.dest }}"
+    become: yes
+    file:
+      path: "{{ torbrowser_download.dest }}"
+      state: absent
+
+  - name: "rm {{ torbrowser_download.dest }}.asc" 
+    become: yes
+    file:
+      path: "{{ torbrowser_download.dest }}.asc"
+      state: absent
+
+  when: torbrowser_installed_version.stdout is not defined
+        or torbrowser_installed_version.stdout != torbrowser_filename.stdout

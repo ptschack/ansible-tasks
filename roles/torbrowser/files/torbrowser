@@ -1,0 +1,2 @@
+#!/bin/bash
+$(cd /opt/tor-browser_en-US/Browser && ./firefox)
