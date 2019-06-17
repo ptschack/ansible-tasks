@@ -16,10 +16,36 @@
   dnf:
     update_cache: yes
 
-- name: install software
-  become: yes
-  package:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - docker-ce
+- name: install docker
+  block:
+    - name: install software 
+      become: yes
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - docker-ce
+  rescue:
+    - name: deselect stable
+      become: yes
+      replace:
+        path: /etc/yum.repos.d/docker-ce.repo
+        regexp: 'enabled=1'
+        replace: enabled=0
+    - name: select testing
+      become: yes
+      replace:
+        path: /etc/yum.repos.d/docker-ce.repo
+        regexp: 'enabled=0'
+        after: '\[docker-ce-test\]'
+        before: '\[docker-ce-test-debuginfo\]'
+        replace: enabled=1
+    - name: update dnf cache
+      become: yes
+      dnf:
+        update_cache: yes
+    - name: install docker
+      become: yes
+      package:
+        name: docker-ce
+        state: present

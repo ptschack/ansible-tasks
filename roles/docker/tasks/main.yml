@@ -5,6 +5,7 @@
     state: absent
   with_items:
     - docker
+    - docker-ce
     - docker-common
     - container-selinux
     - docker-selinux
