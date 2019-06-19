@@ -44,7 +44,7 @@
     - redhat.vscode-yaml
     - ms-python.python
     - eamodio.gitlens
-    - peterjausovec.vscode-docker
+    - ms-azuretools.vscode-docker
     - redhat.vscode-yaml
     - davidanson.vscode-markdownlint
     - james-yu.latex-workshop
