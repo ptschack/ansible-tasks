@@ -18,6 +18,10 @@
   shell: "echo {{ firefox_link.stdout }} | sed 's|.*/||'"
   register: firefox_filename
 
+- name: get firefox version
+  shell: "echo {{ firefox_filename }} | sed 's|^.*firefox-||' | sed 's|\\.tar.*$||'"
+  register: firefox_version
+
 - name: "stat {{ firefox_filename.stdout }}"
   stat:
     path: "/tmp/{{ firefox_filename.stdout }}"
@@ -36,6 +40,13 @@
 
 - name: "download & install firefox"
   block:
+
+  - name: download mozilla key
+    get_url:
+      url: "https://ftp.mozilla.org/pub/firefox/releases/{{ firefox_version.stdout }}/KEY"
+      dest: /tmp/mozilla_key
+      force: yes
+
   - name: "download {{ firefox_link.stdout }}"
     become: yes
     get_url:
@@ -54,7 +65,7 @@
     delegate_to: localhost
 
   - name: import gpg key
-    command: "gpg --recv-keys {{ MOZILLA_PUBKEY }}"
+    command: "gpg --import /tmp/mozilla_key"
 
   - name: verify download
     command: "gpg --verify {{ firefox_download_sig.dest }} {{ firefox_download.dest }}"
@@ -82,27 +93,27 @@
       dest: /opt/
       remote_src: yes
 
-  - name: "echo {{ firefox_filename.stdout }} > /opt/firefox/ANSIBLE_MANAGED_VERSION.txt"
+  - name: "echo {{ firefox_version.stdout }} > /opt/firefox/ANSIBLE_MANAGED_VERSION.txt"
     become: yes
-    shell: "echo {{ firefox_filename.stdout }} > /opt/firefox/ANSIBLE_MANAGED_VERSION.txt"
+    shell: "echo {{ firefox_version.stdout }} > /opt/firefox/ANSIBLE_MANAGED_VERSION.txt"
 
   - name: link firefox
+    become: yes
     file:
       src: /opt/firefox/firefox
       dest: /usr/local/bin/firefox
       state: link
+      mode: a+rx
 
-  - name: "rm {{ firefox_download.dest }}"
+  - name: "delete files"
     become: yes
     file:
-      path: "{{ firefox_download.dest }}"
+      path: "{{ item }}"
       state: absent
-
-  - name: "rm {{ firefox_download.dest }}.asc" 
-    become: yes
-    file:
-      path: "{{ firefox_download.dest }}.asc"
-      state: absent
+    with_items:
+      - "{{ firefox_download.dest }}"
+      - "{{ firefox_download.dest }}.asc"
+      - "/tmp/mozilla_key"
 
   when: firefox_installed_version.stdout is not defined
-        or firefox_installed_version.stdout != firefox_filename.stdout
+        or firefox_installed_version.stdout != firefox_version.stdout
