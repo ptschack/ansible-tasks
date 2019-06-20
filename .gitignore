@@ -3,6 +3,8 @@ site.yml
 *.retry
 *.sync-conflict*
 roles/syncthing/files/*
+roles/citrix/certificates/*
+roles/citrix/deb/*
 utils/prepare_raspbian/*.zip
 utils/prepare_raspbian/*.img
 utils/prepare_raspbian/*.sha256

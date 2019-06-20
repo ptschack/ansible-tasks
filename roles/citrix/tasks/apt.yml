@@ -1,0 +1,30 @@
+- name: rm -rf /tmp/citrix_debs
+  become: yes
+  file:
+    path: /tmp/citrix_debs/
+    state: "{{ item }}"
+  with_items:
+    - absent
+    - directory
+
+- name: copy .deb files
+  become: yes
+  copy:
+    src: deb/
+    dest: /tmp/citrix_debs/
+
+- name: list .debs
+  shell: "for i in /tmp/citrix_debs/*.deb; do echo $i; done"
+  register: deb_filenames
+
+- name: install .debs
+  become: yes
+  apt:
+    deb: "{{ item }}"
+  with_items: "{{ deb_filenames.stdout_lines }}"
+
+- name: rm -rf /tmp/citrix_debs
+  become: yes
+  file:
+    path: /tmp/citrix_debs/
+    state: absent
