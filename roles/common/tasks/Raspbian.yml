@@ -1,3 +1,9 @@
+- name: remove /etc/apt/sources.list
+  become: yes
+  file:
+    path: /etc/apt/sources.list
+    state: absent
+
 - name: add repo keys
   become: yes
   apt_key:
@@ -13,5 +19,5 @@
     repo: "{{ item }}"
     state: present
   with_items:
-    - 'deb http://raspbian.raspberrypi.org/raspbian/ stable main contrib non-free rpi'
     - 'deb http://archive.raspberrypi.org/debian/ {{ ansible_distribution_release }} main ui'
+    - 'deb http://raspbian.raspberrypi.org/raspbian/ {{ ansible_distribution_release }} main contrib non-free rpi firmware'

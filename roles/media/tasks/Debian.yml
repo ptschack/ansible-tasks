@@ -1,0 +1,21 @@
+- name: "perform Debian tasks"
+  block:
+
+  - name: install keyrings
+    become: yes
+    package:
+      name: "{{ item }}"
+      state: latest
+    with_items:
+      - debian-keyring
+      - debian-archive-keyring
+
+  - name: add repositories
+    become: yes
+    lineinfile:
+      line: "{{ item }}"
+      path: /etc/apt/sources.list
+    with_items:
+      - "deb https://www.deb-multimedia.org {{ ansible_distribution_release }} main non-free"
+
+  when: os_raspbian.rc != 0

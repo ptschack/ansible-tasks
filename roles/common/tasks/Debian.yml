@@ -24,9 +24,9 @@
       line: "{{ item }}"
       path: /etc/apt/sources.list
     with_items:
-      - 'deb http://ftp.de.debian.org/debian/ stable main contrib non-free'
-      - 'deb http://security.debian.org/ stable/updates main contrib non-free'
-      - 'deb http://ftp.de.debian.org/debian/ stable-updates main contrib non-free'
-      - 'deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib'
+      - "deb http://deb.debian.org/debian/ {{ ansible_distribution_release }} main contrib non-free"
+      - "deb http://deb.debian.org/debian/ {{ ansible_distribution_release }}-updates main contrib non-free"
+      - "deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib"
+      - "deb http://security.debian.org/ {{ ansible_distribution_release }}/updates main contrib non-free"
 
   when: os_raspbian.rc != 0
