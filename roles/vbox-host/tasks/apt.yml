@@ -4,11 +4,13 @@
     url: https://www.virtualbox.org/download/oracle_vbox_2016.asc
     state: present
 
-- name: add vbox repo
+- name: add repositories
   become: yes
-  lineinfile:
-    line: "deb http://download.virtualbox.org/virtualbox/debian {{ ansible_distribution_release }} contrib non-free"
-    path: /etc/apt/sources.list
+  apt_repository:
+      repo: "{{ item }}"
+      state: present
+  with_items:
+    - "deb http://download.virtualbox.org/virtualbox/debian {{ ansible_distribution_release }} contrib non-free"
 
 - name: update apt cache
   become: yes

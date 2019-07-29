@@ -20,9 +20,9 @@
 
   - name: add repositories
     become: yes
-    lineinfile:
-      line: "{{ item }}"
-      path: /etc/apt/sources.list
+    apt_repository:
+      repo: "{{ item }}"
+      state: present
     with_items:
       - "deb http://deb.debian.org/debian/ {{ ansible_distribution_release }} main contrib non-free"
       - "deb http://deb.debian.org/debian/ {{ ansible_distribution_release }}-updates main contrib non-free"

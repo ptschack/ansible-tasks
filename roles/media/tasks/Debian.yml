@@ -12,9 +12,9 @@
 
   - name: add repositories
     become: yes
-    lineinfile:
-      line: "{{ item }}"
-      path: /etc/apt/sources.list
+    apt_repository:
+      repo: "{{ item }}"
+      state: present
     with_items:
       - "deb https://www.deb-multimedia.org {{ ansible_distribution_release }} main non-free"
 
