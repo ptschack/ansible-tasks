@@ -49,9 +49,12 @@
 
   - name: import gpg key
     command: "gpg --recv-keys {{ TOR_PUBKEY }}"
+    delegate_to: localhost
+    ignore_errors: yes
 
   - name: verify download
-    command: "gpg --verify {{ torbrowser_download_sig.dest }} {{ torbrowser_download.dest }}"
+    command: "gpg --verify {{ torbrowser_download_sig.dest }} {{ torbrowser_archive_file.stat.path | torbrowser_download.dest }}"
+    delegate_to: localhost
 
   - name: rm -rf /opt/tor-browser_en-US.old
     become: yes
@@ -69,12 +72,11 @@
     command: mv /opt/tor-browser_en-US /opt/tor-browser_en-US.old
     when: torbrowser_old.stat.exists
 
-  - name: "extract {{ torbrowser_download.dest }} into /opt/"
+  - name: "extract {{ torbrowser_archive_file.stat.path | torbrowser_download.dest }} into /opt/"
     become: yes
     unarchive:
-      src: "{{ torbrowser_download.dest }}"
+      src: "{{ torbrowser_archive_file.stat.path | torbrowser_download.dest }}"
       dest: /opt/
-      remote_src: yes
       mode: a+r
       owner: "{{ ansible_user }}"
 
@@ -89,16 +91,16 @@
       dest: /usr/local/bin/torbrowser
       mode: a+rx
 
-  - name: "rm {{ torbrowser_download.dest }}"
+  - name: "rm {{ torbrowser_archive_file.stat.path | torbrowser_download.dest }}"
     become: yes
     file:
-      path: "{{ torbrowser_download.dest }}"
+      path: "{{ torbrowser_archive_file.stat.path | torbrowser_download.dest }}"
       state: absent
 
-  - name: "rm {{ torbrowser_download.dest }}.asc" 
+  - name: "rm {{ torbrowser_archive_file.stat.path | torbrowser_download.dest }}.asc" 
     become: yes
     file:
-      path: "{{ torbrowser_download.dest }}.asc"
+      path: "{{ torbrowser_archive_file.stat.path | torbrowser_download.dest }}.asc"
       state: absent
 
   when: torbrowser_installed_version.stdout is not defined
