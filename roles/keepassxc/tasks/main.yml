@@ -1,0 +1,53 @@
+- name: install software
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - keepassxc
+
+- name: get addon download link
+  shell: echo -e $(curl -s https://addons.mozilla.org/en-US/firefox/addon/keepassxc-browser/ | grep -o 'https[^"]*xpi')
+  args:
+    executable: /bin/bash
+  register: addon_dl_link
+  delegate_to: localhost
+
+- name: download {{ addon_dl_link.stdout }}
+  get_url:
+    url: "{{ addon_dl_link.stdout }}"
+    dest: /tmp/keepassxc-browser@keepassxc.org.xpi
+    force: yes
+  register: xpi_download
+  delegate_to: localhost
+
+- name: installing /tmp/keepassxc-browser@keepassxc.org.xpi
+  become: yes
+  copy:
+    src: /tmp/keepassxc-browser@keepassxc.org.xpi
+    dest: "{{ item }}"
+  with_items:
+    - /usr/lib/mozilla/extensions/
+    - /usr/lib64/mozilla/extensions/
+    - /usr/share/mozilla/extensions/
+  ignore_errors: yes
+
+- name: mkdir ~/.config/keepassxc/
+  file:
+    path: /home/{{ ansible_user }}/.config/keepassxc
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: "copy /home/{{ ansible_user }}/.config/keepassxc/keepassxc.ini"
+  copy:
+    src: keepassxc.ini
+    dest: /home/{{ ansible_user }}/.config/keepassxc/keepassxc.ini
+    force: no
+
+- name: cleanup
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /tmp/keepassxc-browser@keepassxc.org.xpi
