@@ -11,7 +11,7 @@
     state: present
   with_items:
     - http://raspbian.raspberrypi.org/raspbian.public.key
-    - https://archive.raspberrypi.org/debian/raspberrypi.gpg.key
+    - http://archive.raspberrypi.org/debian/raspberrypi.gpg.key
 
 - name: add repositories
   become: yes

@@ -11,6 +11,7 @@
   args:
     executable: /bin/bash
   register: addon_dl_link
+  changed_when: no
   delegate_to: localhost
 
 - name: download {{ addon_dl_link.stdout }}

@@ -28,6 +28,7 @@
 - name: whoami
   command: whoami
   register: whoami
+  changed_when: no
 
 - name: configure values in config.xml
   xml:

@@ -1,41 +1,31 @@
 - include_tasks: "{{ ansible_pkg_mgr }}.yml"
 
+# - include_vars:
+#     file: "./vars/{{ ansible_distribution }}.yml"
+
 - name: install software
   become: yes
   package:
     name: "{{ item }}"
     state: present
-  with_items:
+  with_items: #"{{ packages }}"
     - git
     - kdiff3
     - code
 
-- name: install software
-  become: yes
-  package:
-    name: openssh-client
-    state: present
-  when: ansible_distribution == "Debian"
-
-- name: install software
-  become: yes
-  package:
-    name: openssh
-    state: present
-  when: ansible_distribution == "Fedora"
-
 # weird: this task hangs
-# - name: generate ssh keys
-#   openssh_keypair:
-#    path: ~/.ssh/id_rsa
-#    state: present
-#    type: rsa
+- name: generate ssh keys
+  openssh_keypair:
+    path: ~/.ssh/id_rsa
+    state: present
+    type: rsa
+    force: no
 
 # the old way doesn't
-- name: generate ssh keys
-  shell: ssh-keygen -t rsa -f ~/.ssh/id_rsa -b 4096
-  args:
-    creates: ~/.ssh/id_rsa
+# - name: generate ssh keys
+#   shell: ssh-keygen -t rsa -f ~/.ssh/id_rsa -b 4096
+#   args:
+#     creates: ~/.ssh/id_rsa
 
 - name: add vscode extensions
   shell: "code --install-extension {{ item }}"

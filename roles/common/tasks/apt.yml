@@ -1,19 +1,6 @@
-- name: update apt cache
+- name: upgrade all packages
   become: yes
   apt:
     update_cache: yes
-  
-- name: apt state latest
-  become: yes
-  apt:
     name: "*"
     state: latest
-  register: upgrade_apt
-  ignore_errors: yes
-
-- name: apt-get dist-upgrade
-  become: yes
-  apt:
-    upgrade: dist
-  register: upgrade_dist
-  ignore_errors: yes

@@ -12,14 +12,17 @@
     | sed 's|^.*href="||' \
     | sed 's|".*$||'
   register: firefox_link
+  changed_when: no
   delegate_to: localhost
 
 - name: get firefox archive name
   shell: "echo {{ firefox_link.stdout }} | sed 's|.*/||'"
+  changed_when: no
   register: firefox_filename
 
 - name: get firefox version
   shell: "echo {{ firefox_filename }} | sed 's|^.*firefox-||' | sed 's|\\.tar.*$||'"
+  changed_when: no
   register: firefox_version
 
 - name: "stat {{ firefox_filename.stdout }}"
@@ -36,6 +39,7 @@
 - name: get installed version
   shell: cat /opt/firefox/ANSIBLE_MANAGED_VERSION.txt
   register: firefox_installed_version
+  changed_when: no
   when: firefox_version_file.stat.exists
 
 - name: "download & install firefox"
@@ -66,6 +70,7 @@
 
   - name: import gpg key
     command: "gpg --import /tmp/mozilla_key"
+    ignore_errors: yes
 
   - name: verify download
     command: "gpg --verify {{ firefox_download_sig.dest }} {{ firefox_download.dest }}"

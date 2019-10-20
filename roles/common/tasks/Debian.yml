@@ -1,7 +1,8 @@
 - name: check if raspbian
   shell: cat /etc/os-release | grep 'ID=raspbian'
   register: os_raspbian
-  ignore_errors: yes
+  failed_when: no
+  changed_when: no
 
 - include_tasks: Raspbian.yml
   when: os_raspbian.rc == 0

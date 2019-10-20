@@ -6,10 +6,12 @@
     | sed 's|^.*href="||' \
     | sed 's|".*$||'
   register: torbrowser_link
+  changed_when: no
   delegate_to: localhost
 
 - name: get torbrowser archive name
   shell: "echo {{ torbrowser_link.stdout }} | sed 's|.*/||'"
+  changed_when: no
   register: torbrowser_filename
 
 - name: "stat {{ torbrowser_filename.stdout }}"
@@ -26,6 +28,7 @@
 - name: get installed version
   shell: cat /opt/tor-browser_en-US/ANSIBLE_MANAGED_VERSION.txt
   register: torbrowser_installed_version
+  changed_when: no
   when: torbrowser_version_file.stat.exists
 
 - name: "download & install torbrowser"
@@ -53,7 +56,7 @@
     ignore_errors: yes
 
   - name: verify download
-    command: "gpg --verify {{ torbrowser_download_sig.dest }} {{ torbrowser_archive_file.stat.path | torbrowser_download.dest }}"
+    command: "gpg --verify {{ torbrowser_download_sig.dest }} {{ torbrowser_download.dest }}" #torbrowser_archive_file.stat.path
     delegate_to: localhost
 
   - name: rm -rf /opt/tor-browser_en-US.old
@@ -72,10 +75,10 @@
     command: mv /opt/tor-browser_en-US /opt/tor-browser_en-US.old
     when: torbrowser_old.stat.exists
 
-  - name: "extract {{ torbrowser_archive_file.stat.path | torbrowser_download.dest }} into /opt/"
+  - name: "extract {{ torbrowser_download.dest }} into /opt/"  #torbrowser_archive_file.stat.path |
     become: yes
     unarchive:
-      src: "{{ torbrowser_archive_file.stat.path | torbrowser_download.dest }}"
+      src: "{{ torbrowser_download.dest }}" #torbrowser_archive_file.stat.path |
       dest: /opt/
       mode: a+r
       owner: "{{ ansible_user }}"
@@ -91,16 +94,16 @@
       dest: /usr/local/bin/torbrowser
       mode: a+rx
 
-  - name: "rm {{ torbrowser_archive_file.stat.path | torbrowser_download.dest }}"
+  - name: "rm {{ torbrowser_download.dest }}" #torbrowser_archive_file.stat.path |
     become: yes
     file:
-      path: "{{ torbrowser_archive_file.stat.path | torbrowser_download.dest }}"
+      path: "{{  torbrowser_download.dest }}" #torbrowser_archive_file.stat.path |
       state: absent
 
-  - name: "rm {{ torbrowser_archive_file.stat.path | torbrowser_download.dest }}.asc" 
+  - name: "rm {{ torbrowser_download.dest }}.asc" #torbrowser_archive_file.stat.path |
     become: yes
     file:
-      path: "{{ torbrowser_archive_file.stat.path | torbrowser_download.dest }}.asc"
+      path: "{{ torbrowser_download.dest }}.asc" #torbrowser_archive_file.stat.path |
       state: absent
 
   when: torbrowser_installed_version.stdout is not defined

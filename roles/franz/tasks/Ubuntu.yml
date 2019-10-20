@@ -11,6 +11,7 @@
     | sed 's|^.*href="||' \
     | sed 's|".*$||'
   register: franz_link
+  changed_when: no
   delegate_to: localhost
 
 - name: "Install https://github.com{{ franz_link.stdout }}"
