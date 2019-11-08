@@ -33,19 +33,19 @@
 
 - name: "download & install torbrowser"
   block:
-  - name: "download {{ torbrowser_link.stdout }}"
+  - name: download https://www.torproject.org/{{ torbrowser_link.stdout }}
     become: yes
     get_url:
-      url: "{{ torbrowser_link.stdout }}"
+      url: https://www.torproject.org/{{ torbrowser_link.stdout }}
       dest: /tmp/
     register: torbrowser_download
     delegate_to: localhost
     when: torbrowser_archive_file.stat.exists != true
 
-  - name: "download {{ torbrowser_link.stdout }}.asc"
+  - name: download https://www.torproject.org/{{ torbrowser_link.stdout }}.asc
     become: yes
     get_url:
-      url: "{{ torbrowser_link.stdout }}.asc"
+      url: https://www.torproject.org/{{ torbrowser_link.stdout }}.asc
       dest: /tmp/
     register: torbrowser_download_sig
     delegate_to: localhost
