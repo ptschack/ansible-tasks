@@ -25,13 +25,22 @@
     path: /opt/tor-browser_en-US/ANSIBLE_MANAGED_VERSION.txt
   register: torbrowser_version_file
 
+- name: chmod /opt/tor-browser_en-US/ANSIBLE_MANAGED_VERSION.txt
+  become: yes
+  file:
+    path: /opt/tor-browser_en-US/ANSIBLE_MANAGED_VERSION.txt
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: u+rw,g+r,g-wx,o+r,o-wx
+  when: torbrowser_version_file.stat.exists
+
 - name: get installed version
   shell: cat /opt/tor-browser_en-US/ANSIBLE_MANAGED_VERSION.txt
   register: torbrowser_installed_version
   changed_when: no
   when: torbrowser_version_file.stat.exists
 
-- name: "download & install torbrowser"
+- name: download & install torbrowser
   block:
   - name: download https://www.torproject.org/{{ torbrowser_link.stdout }}
     become: yes

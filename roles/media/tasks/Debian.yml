@@ -18,4 +18,12 @@
     with_items:
       - "deb https://www.deb-multimedia.org {{ ansible_distribution_release }} main non-free"
 
+  - name: install software
+    become: yes
+    package:
+      name: "{{ item }}"
+      state: present
+    with_items:
+      - normalize-audio
+
   when: os_raspbian.rc != 0
