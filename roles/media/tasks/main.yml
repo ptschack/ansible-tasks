@@ -12,6 +12,9 @@
     - youtube-dl
     - kdenlive
     - inkscape
+    - "avidemux2.7-*"
+    - normalize-audio
 
 - name: update youtube-dl -U
   command: youtube-dl -U
+  when: ansible_distribution != 'Debian' and ansible_distribution != 'Ubuntu'

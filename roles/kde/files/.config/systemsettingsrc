@@ -1,0 +1,6 @@
+[MainWindow]
+Height 1680=480
+MenuBar=Disabled
+ToolBarsMovable=Disabled
+Width 1050=640
+Window-Maximized 1050x1680=true

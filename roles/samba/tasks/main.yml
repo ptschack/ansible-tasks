@@ -14,6 +14,7 @@
     path: /etc/selinux/config
     regexp: ^SELINUX=
     line: SELINUX=permissive
+    create: yes
 
 - name: edit /etc/samba/smb.conf
   become: yes
@@ -29,11 +30,16 @@
     - { regexp: '^\s*pam password change\s*=', line: 'pam password change = yes' }
 
 - name: enable smb user
-  command: smbpasswd -e {{ ansible_user }}
   become: yes
+  command: smbpasswd -e {{ ansible_user }}
 
 - name: restart smb service
   become: yes
   service:
-    name: smb
+    name: "{{ item }}"
     state: restarted
+  with_items:
+    - smb
+    - smbd
+    - samba
+  ignore_errors: yes

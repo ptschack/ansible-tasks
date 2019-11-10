@@ -1,3 +1,3 @@
-- name: "perform Debian tasks"
+- name: "perform Fedora tasks"
   debug:
     msg: nothing

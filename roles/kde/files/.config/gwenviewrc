@@ -1,0 +1,29 @@
+[General]
+HistoryEnabled=false
+
+[ImageView]
+EnlargeSmallerImages=true
+
+[MainWindow]
+Height 1050=480
+Height 1680=480
+ToolBarsMovable=Disabled
+Width 1050=785
+Width 1680=785
+
+[Phonon::AudioOutput]
+Gwenview_Volume=1
+
+[SideBar-FullScreenMode]
+IsVisible=false
+
+[SideBar-ViewMode]
+IsVisible=true
+
+[ThumbnailView]
+DeleteThumbnailCacheOnExit=true
+ListVideos=false
+
+[slide show]
+loop=true
+random=true

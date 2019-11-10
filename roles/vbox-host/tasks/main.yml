@@ -34,6 +34,17 @@
   when:
     - ansible_distribution == "Debian"
 
+- name: install virtualbox-6.1
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - vagrant
+    - virtualbox-6.1
+  when:
+    - ansible_distribution == "Ubuntu"
+
 - name: add user to vbox group
   become: yes
   user:

@@ -16,3 +16,5 @@
     - screen
     - jq
     - cifs-utils
+    - exfat-utils
+    - exfat-fuse

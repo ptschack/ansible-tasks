@@ -25,4 +25,4 @@
   with_items:
     - texlive-full
   when:
-    - ansible_distribution == "Debian"
+    - ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"

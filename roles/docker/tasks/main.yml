@@ -10,6 +10,7 @@
     - container-selinux
     - docker-selinux
     - docker-engine
+    - runc
 
 - include_tasks: "{{ ansible_distribution }}.yml"
 

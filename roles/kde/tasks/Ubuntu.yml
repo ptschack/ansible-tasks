@@ -1,4 +1,4 @@
-- name: install KDE on Debian
+- name: install KDE on Ubuntu
   become: yes
   package:
     name: "{{ item }}"

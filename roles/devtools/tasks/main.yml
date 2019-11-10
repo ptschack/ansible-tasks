@@ -1,7 +1,6 @@
 - include_tasks: "{{ ansible_pkg_mgr }}.yml"
 
-# - include_vars:
-#     file: "./vars/{{ ansible_distribution }}.yml"
+- include_tasks: "{{ ansible_distribution }}.yml"
 
 - name: install software
   become: yes
@@ -12,13 +11,18 @@
     - git
     - kdiff3
     - code
+    - android-tools-adb
+    - android-tools-fastboot
+    - python-virtualenv
+    - software-properties-common
+    - ansible
 
-# weird: this task hangs
 - name: generate ssh keys
   openssh_keypair:
     path: ~/.ssh/id_rsa
     state: present
     type: rsa
+    size: 4096
     force: no
 
 # the old way doesn't

@@ -1,23 +1,18 @@
 - name: install software
   become: yes
-  package:
+  apt:
     name: "{{ item }}"
     state: present
   with_items:
     - openssh-server
 
-# weird: this task hangs
-# - name: generate ssh keys
-#   openssh_keypair:
-#    path: ~/.ssh/id_rsa
-#    state: present
-#    type: rsa
-
-# the old way doesn't
 - name: generate ssh keys
-  shell: ssh-keygen -t rsa -f ~/.ssh/id_rsa -b 4096 -N ''
-  args:
-    creates: ~/.ssh/id_rsa
+  openssh_keypair:
+    path: ~/.ssh/id_rsa
+    state: present
+    size: 4096
+    type: rsa
+    force: no
 
 - name: Set authorized key taken from file
   authorized_key:
@@ -54,16 +49,5 @@
     state: started
   with_items:
     - ssh
-  when:
-    - ansible_distribution == "Debian"
-
-- name: enable & restart sshd
-  become: yes
-  service:
-    name: "{{ item }}"
-    enabled: yes
-    state: started
-  with_items:
     - sshd
-  when:
-    - ansible_distribution == "Fedora"
+  ignore_errors: yes
