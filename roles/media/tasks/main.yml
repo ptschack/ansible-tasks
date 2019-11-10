@@ -11,6 +11,7 @@
     - vlc
     - youtube-dl
     - kdenlive
+    - inkscape
 
 - name: update youtube-dl -U
   command: youtube-dl -U
