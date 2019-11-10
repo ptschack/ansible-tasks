@@ -1,0 +1,39 @@
+- name: install basic packages
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - samba
+    - samba-common
+    - tdb-tools
+
+- name: set selinux to permissive
+  become: yes
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: ^SELINUX=
+    line: SELINUX=permissive
+
+- name: edit /etc/samba/smb.conf
+  become: yes
+  lineinfile:
+    path: /etc/samba/smb.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: '^\s*server role\s*=', line: 'server role = standalone server' }
+    - { regexp: '^\s*passdb backend\s*=', line: 'passdb backend = tdbsam' }
+    - { regexp: '^\s*obey pam restrictions\s*=', line: 'obey pam restrictions = yes' }
+    - { regexp: '^\s*unix password sync\s*=', line: 'unix password sync = yes' }
+    - { regexp: '^\s*pam password change\s*=', line: 'pam password change = yes' }
+
+- name: enable smb user
+  command: smbpasswd -e {{ ansible_user }}
+  become: yes
+
+- name: restart smb service
+  become: yes
+  service:
+    name: smb
+    state: restarted
