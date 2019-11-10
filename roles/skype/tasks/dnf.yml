@@ -1,0 +1,12 @@
+- name: add skype repo
+  become: yes
+  get_url:
+    url: https://repo.skype.com/rpm/stable/skype-stable.repo
+    dest: /etc/yum.repos.d/skype-stable.repo
+    mode: a+r
+    force: yes
+
+- name: update dnf cache
+  become: yes
+  dnf:
+    update_cache: yes
