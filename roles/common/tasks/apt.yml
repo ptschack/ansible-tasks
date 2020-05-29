@@ -2,5 +2,5 @@
   become: yes
   apt:
     update_cache: yes
-    name: "*"
-    state: latest
+    upgrade: full
+    # force_apt_get: yes

@@ -10,7 +10,7 @@
       repo: "{{ item }}"
       state: present
   with_items:
-    - "deb http://download.virtualbox.org/virtualbox/debian {{ ansible_distribution_release }} contrib non-free"
+    - "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian {{ ansible_distribution_release }} contrib non-free"
 
 - name: update apt cache
   become: yes

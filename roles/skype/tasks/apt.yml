@@ -1,0 +1,16 @@
+- name: "perform apt tasks"
+  block:
+
+  - name: add skype apt key
+    become: yes
+    apt_key:
+      state: present
+      url: https://repo.skype.com/data/SKYPE-GPG-KEY
+
+  - name: add skype repository
+    become: yes
+    apt_repository:
+      repo: "{{ item }}"
+      state: present
+    with_items:
+      - "deb [arch=amd64] https://repo.skype.com/deb stable main"

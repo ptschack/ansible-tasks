@@ -16,6 +16,13 @@
     - python-virtualenv
     - software-properties-common
     - ansible
+    - proot
+    - qemu
+    - qemu-system-arm
+    - qemu-guest-agent
+    - qemu-system-common
+    - qemu-user
+    - qemu-utils
 
 - name: generate ssh keys
   openssh_keypair:
