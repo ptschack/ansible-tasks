@@ -5,6 +5,7 @@
     url: https://syncthing.net/release-key.txt
 
 - name: add repo
+  become: yes
   apt_repository:
     repo: deb https://apt.syncthing.net/ syncthing stable
     state: present

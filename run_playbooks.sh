@@ -3,7 +3,7 @@
 #./prepare.sh
 
 if [ ! -z "$1" ]; then
-    ansible-playbook -i hosts site.yml --ask-become-pass --limit $@
+    ansible-playbook --flush-cache -i hosts site.yml --ask-become-pass --extra-vars "ansible_python_interpreter=/usr/bin/python3" --limit $@
 else
-    ansible-playbook -i hosts site.yml --ask-become-pass
+    ansible-playbook --flush-cache -i hosts site.yml --ask-become-pass --extra-vars "ansible_python_interpreter=/usr/bin/python3"
 fi

@@ -18,3 +18,4 @@
     - cifs-utils
     - exfat-utils
     - exfat-fuse
+    - python3
