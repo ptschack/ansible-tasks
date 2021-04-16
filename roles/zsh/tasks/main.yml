@@ -1,11 +1,8 @@
 - name: install software
   become: yes
-  apt:
-    name: "{{ item }}"
+  package:
+    name: ["git", "zsh"]
     state: present
-  with_items:
-    - git
-    - zsh
 
 - name: zsh resource configuration test
   stat:
@@ -21,12 +18,12 @@
         url: "https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh"
         dest: /tmp/install_user_zsh.sh
         mode: 0777
-    - name: Try to fix Installation Script
-      become: yes
-      lineinfile:
-        path: /tmp/install_user_zsh.sh
-        state: absent
-        regexp: '^\s*env zsh -l'
+    # - name: Try to fix Installation Script
+    #   become: yes
+    #   lineinfile:
+    #     path: /tmp/install_user_zsh.sh
+    #     state: absent
+    #     regexp: '^\s*env zsh -l'
     - name: Execute shell script for user zshell configuration
       shell: "/tmp/install_user_zsh.sh --unattended"
     - name: Prepare z-shell resource settings - setting ZSH env
@@ -63,5 +60,5 @@
     path: ~/.zshrc
     insertafter: EOF
     block: |
-      alias ls="ls -lah --color=auto"
+      alias ll="ls -lah --color=auto"
       alias restart_kde="sudo killall plasmashell ; kstart plasmashell"

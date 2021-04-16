@@ -1,5 +1,9 @@
 - debug:
-    msg: Distribution is {{ ansible_distribution }}, pkg manager is {{ ansible_pkg_mgr }}
+    msg: "{{ item }}"
+  with_items:
+    - distribution is {{ ansible_distribution }}
+    - pkg manager is {{ ansible_pkg_mgr }}
+    - distribution release is {{ ansible_distribution_release }}
 
 - include_tasks: "{{ ansible_distribution }}.yml"
 
@@ -20,5 +24,8 @@
         "exfat-utils",
         "exfat-fuse",
         "python3",
+        "cryptsetup",
+        "git",
+        "openssh-client",
       ]
     state: latest

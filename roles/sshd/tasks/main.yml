@@ -1,10 +1,8 @@
 - name: install software
   become: yes
-  apt:
-    name: "{{ item }}"
+  package:
+    name: [ 'openssh-server' ]
     state: present
-  with_items:
-    - openssh-server
 
 - name: generate ssh keys
   openssh_keypair:
