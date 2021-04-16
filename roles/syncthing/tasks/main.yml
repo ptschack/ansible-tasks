@@ -3,18 +3,14 @@
 - name: install
   become: true
   package:
-    name: "{{ item }}"
+    name: ["python3-lxml", "syncthing"] #"python-lxml", 
     state: present
-  with_items:
-    - python-lxml
-    - python3-lxml
-    - syncthing
 
 - name: copy config files
   copy:
     src: "{{ item }}"
-    dest: ~/.config/syncthing
-    force: no
+    dest: ~/.config/syncthing/
+    force: yes
   with_items:
     - "{{ inventory_hostname }}/cert.pem"
     - "{{ inventory_hostname }}/config.xml"
@@ -46,7 +42,10 @@
     - { xpath: "/configuration/options/cacheIgnoredFiles", value: "false" }
     - { xpath: "/configuration/options/limitBandwidthInLan", value: "false" }
     - { xpath: "/configuration/options/minHomeDiskFree", value: "1" }
-    - { xpath: "/configuration/options/overwriteRemoteDeviceNamesOnConnect", value: "false" }
+    - {
+        xpath: "/configuration/options/overwriteRemoteDeviceNamesOnConnect",
+        value: "false",
+      }
 
 - name: configure attributes in config.xml
   xml:
@@ -58,7 +57,11 @@
     - { xpath: "/configuration/gui", attribute: "debugging", value: "false" }
     - { xpath: "/configuration/gui", attribute: "tls", value: "true" }
     - { xpath: "/configuration/gui", attribute: "enabled", value: "true" }
-    - { xpath: "/configuration/options/minHomeDiskFree", attribute: "unit", value: "%" }
+    - {
+        xpath: "/configuration/options/minHomeDiskFree",
+        attribute: "unit",
+        value: "%",
+      }
 
 - name: copy service file
   become: yes
@@ -74,4 +77,4 @@
     name: "syncthing@{{ ansible_user }}.service"
     daemon_reload: yes
     enabled: yes
-    state: started
+    state: restarted
