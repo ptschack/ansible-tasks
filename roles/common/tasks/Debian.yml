@@ -4,11 +4,21 @@
   failed_when: no
   changed_when: no
 
-- include_tasks: Raspbian.yml
+- name: perform Raspbian tasks
+  block:
+
+  - debug:
+      msg: Raspian detected
+
+  - include_tasks: Raspbian.yml
+
   when: os_raspbian.rc == 0
 
 - name: "perform Debian tasks"
   block:
+
+  - debug:
+      msg: Debian detected
 
   - name: install keyrings
     become: yes
@@ -30,4 +40,4 @@
       - "deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib"
       - "deb http://security.debian.org/ {{ ansible_distribution_release }}/updates main contrib non-free"
 
-  when: os_raspbian.rc != 0
+  when: os_raspbian.rc == 1

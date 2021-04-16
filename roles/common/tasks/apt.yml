@@ -3,4 +3,4 @@
   apt:
     update_cache: yes
     upgrade: full
-    # force_apt_get: yes
+    force_apt_get: yes

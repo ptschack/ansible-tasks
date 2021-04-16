@@ -1,3 +1,6 @@
+- debug:
+    msg: Distribution is {{ ansible_distribution }}, pkg manager is {{ ansible_pkg_mgr }}
+
 - include_tasks: "{{ ansible_distribution }}.yml"
 
 - include_tasks: "{{ ansible_pkg_mgr }}.yml"
@@ -5,17 +8,17 @@
 - name: install basic packages
   become: yes
   package:
-    name: "{{ item }}"
+    name:
+      [
+        "htop",
+        "nano",
+        "curl",
+        "wget",
+        "tmux",
+        "jq",
+        "cifs-utils",
+        "exfat-utils",
+        "exfat-fuse",
+        "python3",
+      ]
     state: latest
-  with_items:
-    - "*"
-    - htop
-    - nano
-    - curl
-    - wget
-    - screen
-    - jq
-    - cifs-utils
-    - exfat-utils
-    - exfat-fuse
-    - python3
