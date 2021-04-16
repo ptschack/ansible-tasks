@@ -49,11 +49,16 @@
     name: "{{ ansible_user }}"
     shell: /usr/bin/zsh
 
-- name: configure zsh theme
+- name: configure zshrc
   lineinfile:
     path: ~/.zshrc
     regexp: "^ZSH_THEME="
-    line: "ZSH_THEME=aussiegeek"
+    line: "{{ item }}"
+  with_items:
+    - regexp: "^ZSH_THEME="
+      line: "ZSH_THEME=aussiegeek" 
+    - regexp: "^alias git_unversion"
+      line: alias git_unversion="git rm -r --cached"
 
 - name: configure zsh vars and aliases
   blockinfile:

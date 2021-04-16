@@ -1,6 +1,6 @@
 - include_tasks: "{{ ansible_pkg_mgr }}.yml"
 
-- include_tasks: "{{ ansible_distribution }}.yml"
+# - include_tasks: "{{ ansible_distribution }}.yml"
 
 - name: install software
   become: yes
@@ -13,7 +13,7 @@
     - code
     - android-tools-adb
     - android-tools-fastboot
-    - python-virtualenv
+    - python3-virtualenv
     - software-properties-common
     - ansible
     - proot

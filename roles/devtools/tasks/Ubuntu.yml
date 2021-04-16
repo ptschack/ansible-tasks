@@ -1,4 +1,0 @@
-- name: add ansible ppa
-  become: yes
-  apt_repository:
-    repo: ppa:ansible/ansible
