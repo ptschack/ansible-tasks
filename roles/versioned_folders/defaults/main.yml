@@ -1,0 +1,14 @@
+---
+repos:
+  - path: /home/{{ ansible_user }}
+    user: "{{ ansible_user }}"
+    files:
+      - .ssh
+      - .config
+      - .bashrc
+      - .gnupg
+      - .kde/share
+      - .pki
+      - .gitconfig
+      - .profile
+      - .zshrc

@@ -1,0 +1,86 @@
+#- include_tasks: "{{ ansible_distribution }}.yml"
+#- include_tasks: "{{ ansible_pkg_mgr }}.yml"
+
+# - name: install NodeSource
+#   become: yes
+#   shell: curl -sL https://deb.nodesource.com/setup_10.x | bash -
+#   delegate_to: "{{ inventory_hostname }}"
+
+# - name: install nodejs
+#   become: yes
+#   apt:
+#     name: "{{ item }}"
+#     state: latest
+#   with_items:
+#     - nodejs
+#   delegate_to: "{{ inventory_hostname }}"
+
+# - name: install iobroker
+#   shell: curl -sL https://iobroker.net/install.sh | bash -
+
+- name: update npm
+  become: yes
+  command: npm install -g npm
+
+- name: chown /opt/iobroker
+  become: yes
+  file:
+    path: "{{ item }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: a+rw
+    recurse: yes
+  with_items:
+    - /opt/iobroker/
+    - /root/.npm
+
+
+- name: start iobroker
+  become: yes
+  systemd:
+    state: started
+    name: iobroker
+
+- name: upgrade iobroker
+  become: yes
+  shell: "{{ item }}"
+  args:
+    chdir: /opt/iobroker
+  with_items:
+    - iobroker update
+    - iobroker upgrade self
+    - iobroker upgrade
+
+- name: Install iobroker adapters
+  become: yes
+  shell: npm install iobroker.{{ item }}
+  args:
+    chdir:  /opt/iobroker
+  with_items:
+    - admin
+    - javascript
+    - info
+    - ping
+    - history
+    - hm-rega
+    - hm-rpc
+    - feiertage
+    - chromecast
+    - spotify-premium
+
+- name: iobroker backup job
+  become: yes
+  cron:
+    name: "iobroker backup"
+    minute: "59"
+    hour: "23"
+    job: "iobroker backup && chown -R patrick /opt/iobroker"
+    user: root
+
+- name: ensure /var/ dirs
+  file:
+    path: /var/iobroker-{{ item }}
+    state: directory
+    owner: "{{ ansible_user }}"
+  with_items:
+    - history.0

@@ -7,17 +7,19 @@
     state: present
   with_items:
     - gimp
-    - spectacle
     - vlc
     - youtube-dl
     - kdenlive
     - inkscape
-    - "avidemux2.7-*"
+    - avidemux-qt
     - normalize-audio
     - kolourpaint
     - exiftool
     - audacity
     - ffmpeg
+    - obs-studio
+    - obs-plugins
+    - musescore3
 
 - name: update youtube-dl -U
   command: youtube-dl -U

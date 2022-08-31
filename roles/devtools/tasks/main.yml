@@ -1,6 +1,6 @@
 - include_tasks: "{{ ansible_pkg_mgr }}.yml"
 
-# - include_tasks: "{{ ansible_distribution }}.yml"
+- include_tasks: "{{ ansible_distribution }}.yml"
 
 - name: install software
   become: yes
@@ -16,13 +16,14 @@
     - python3-virtualenv
     - software-properties-common
     - ansible
-    - proot
-    - qemu
-    - qemu-system-arm
-    - qemu-guest-agent
-    - qemu-system-common
-    - qemu-user
-    - qemu-utils
+    - fdupes
+#    - proot
+#    - qemu
+#    - qemu-system-arm
+#    - qemu-guest-agent
+#    - qemu-system-common
+#    - qemu-user
+#    - qemu-utils
 
 - name: generate ssh keys
   openssh_keypair:
@@ -52,7 +53,6 @@
     - dotjoshjohnson.xml
     - samuelcolvin.jinjahtml
     - ivory-lab.jenkinsfile-support
-    - alanwalk.markdown-toc
     - davidanson.vscode-markdownlint
     - coolbear.systemd-unit-file
     - ms-vscode.powershell
@@ -82,4 +82,10 @@
     - { name: 'alias.clone', value: 'clone --recursive' }
     - { name: 'alias.re', value: 'reset --hard HEAD' }
     - { name: 'alias.smui', value: 'submodule update --init --recursive' }
+    - { name: 'alias.unversion', value: 'git rm -r --cached' }
     - { name: 'fetch.prune', value: 'true' }
+
+- name: init home dir as git repo
+  shell:
+    cmd: if [ ! -d /home/{{ ansible_user }}/.git ]; then git init && git add . && git commit -m "initial"; fi
+    chdir: /home/{{ ansible_user }}

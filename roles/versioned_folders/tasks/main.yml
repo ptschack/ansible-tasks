@@ -1,0 +1,38 @@
+- name: init git repo
+  command: git init
+  args:
+    chdir: "{{ item }}"
+  with_items:
+    - /home/{{ ansible_user }}
+
+# - name: add files
+#   command: git add {{ item.file }}
+#   args:
+#     chdir: "{{ item.repo }}"
+#   with_items:
+#     - { repo: "/home/{{ ansible_user }}", file: .ssh }
+#     - { repo: "/home/{{ ansible_user }}", file: .config }
+#     - { repo: "/home/{{ ansible_user }}", file: .bashrc }
+#     - { repo: "/home/{{ ansible_user }}", file: .gnupg }
+#     - { repo: "/home/{{ ansible_user }}", file: .kde/share }
+#     - { repo: "/home/{{ ansible_user }}", file: .pki }
+#     - { repo: "/home/{{ ansible_user }}", file: .gitconfig }
+#     - { repo: "/home/{{ ansible_user }}", file: .profile }
+#     - { repo: "/home/{{ ansible_user }}", file: .zshrc }
+
+- name: show me the iterations
+  command: git add {{ item.0.username }}
+  args:
+    chdir: "{{ item.0.path }}"
+  with_subelements:
+    - repos
+    - files
+
+- name: ensure job
+  cron:
+    name: "autocommit {{ item }}"
+    user: "{{ ansible_user }}"
+    minute: "*/5"
+    job: "cd {{ item }} && git add --update --ignore-errors && git commit -m \"autocommit\""
+  with_items:
+    - /home/{{ ansible_user }}

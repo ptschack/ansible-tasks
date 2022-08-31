@@ -11,6 +11,17 @@
       state: present
   with_items:
     - "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian {{ ansible_distribution_release }} contrib non-free"
+  register: vbox_ubuntu_repo_added
+  ignore_errors: yes
+
+- name: add repositories
+  become: yes
+  apt_repository:
+      repo: "{{ item }}"
+      state: present
+  with_items:
+    - "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian focal contrib non-free"
+  when: vbox_ubuntu_repo_added is failed
 
 - name: update apt cache
   become: yes

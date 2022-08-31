@@ -1,0 +1,59 @@
+- name: install basic packages
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - davical
+
+- name: find pg_hba.conf
+  find:
+    paths: /etc/postgresql
+    pattern: pg_hba.conf
+    recurse: yes
+  become: yes
+  register: pg_hba_conf
+
+- name: set postgresql options
+  lineinfile:
+    path: "{{ item[0].path }}"
+    line: "{{ item[1] }}"
+    create: no
+    insertbefore: BOF
+  become: yes
+  with_nested:
+    - "{{ pg_hba_conf.files }}"
+    - [
+        "local   davical    davical_app   trust",
+        "local   davical    davical_dba   trust"
+      ]
+
+- name: add user to postgres group
+  become: yes
+  user:
+    name: "{{ ansible_user }}"
+    groups: postgres
+    append: yes
+
+- name: mkdir /var/lib/postgresql/backups
+  file:
+    path: /var/lib/postgresql/backups/
+    owner: postgres
+    group: postgres
+    state: directory
+  become: yes
+
+- name: create backup cronjob
+  cron:
+    name: backup postgres db davical
+    minute: "0"
+    user: postgres
+    job: pg_dump --no-password davical > "/var/lib/postgresql/backups/davical_$(date +%Y_%m_%d_%H-%M-%S).pgsql"
+  become: yes
+
+- name: ln -s /usr/share/davical/htdocs davical
+  file:
+    src: /usr/share/davical/htdocs
+    dest: /var/www/html/davical
+    state: link
+  become: yes

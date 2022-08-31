@@ -6,12 +6,12 @@
   with_items:
     - snapd
 
-# use this when updated to ansible >= 2.8
-# - name: install 
-#   snap:
-#     name: insomnia
-#     state: present
-
-- name: install insomnia
+- name: install 
   become: yes
-  command: snap install insomnia
+  snap:
+    name: insomnia
+    state: present
+
+# - name: install insomnia
+#   become: yes
+#   command: snap install insomnia

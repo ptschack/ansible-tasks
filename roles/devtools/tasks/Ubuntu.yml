@@ -1,0 +1,8 @@
+- name: install python packages
+  package:
+    name:
+      - python3-tk
+      - python3-venv
+      - python3-gst-1.0
+      - python3-opencv
+    state: latest

@@ -1,0 +1,7 @@
+- include_tasks: "{{ ansible_pkg_mgr }}.yml"
+
+- name: install signal
+  become: yes
+  package:
+    name: signal-desktop
+    state: latest

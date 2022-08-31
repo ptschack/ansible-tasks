@@ -40,3 +40,12 @@
     name: docker
     state: restarted
     enabled: yes
+  # retries: 3
+  # delay: 10
+  # register: start_docker_service
+  # until: start_docker_service is not failed
+  ignore_errors: yes
+
+# - name: start docker service
+#   become: yes
+#   shell: systemctl restart docker

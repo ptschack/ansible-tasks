@@ -1,0 +1,5 @@
+- name: Install spotify snap
+  become: yes
+  snap:
+    name:
+      - spotify

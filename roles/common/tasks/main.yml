@@ -4,28 +4,37 @@
     - distribution is {{ ansible_distribution }}
     - pkg manager is {{ ansible_pkg_mgr }}
     - distribution release is {{ ansible_distribution_release }}
+    - architecture is {{ ansible_architecture }}
 
 - include_tasks: "{{ ansible_distribution }}.yml"
 
 - include_tasks: "{{ ansible_pkg_mgr }}.yml"
 
+- name: copy config files
+  copy:
+    src: "{{ item }}"
+    dest: ~/{{ item }}
+  with_items:
+    - tmux.conf
+
 - name: install basic packages
   become: yes
   package:
-    name:
-      [
-        "htop",
-        "nano",
-        "curl",
-        "wget",
-        "tmux",
-        "jq",
-        "cifs-utils",
-        "exfat-utils",
-        "exfat-fuse",
-        "python3",
-        "cryptsetup",
-        "git",
-        "openssh-client",
-      ]
+    name: "{{ item }}"
     state: latest
+  with_items:
+    - htop
+    - nano
+    - curl
+    - wget
+    - tmux
+    - jq
+    - cifs-utils
+    - exfat-utils
+    - exfat-fuse
+    - python3
+    - cryptsetup
+    - git
+    - openssh-client
+    - unrar
+  ignore_errors: yes

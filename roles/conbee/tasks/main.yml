@@ -1,0 +1,69 @@
+#- include_tasks: "{{ ansible_distribution }}.yml"
+#- include_tasks: "{{ ansible_pkg_mgr }}.yml"
+
+# https://phoscon.de/de/conbee/install#raspbian
+# https://github.com/dresden-elektronik/deconz-rest-plugin#headless-support-for-linux
+
+- name: add user to dialout group
+  become: yes
+  user:
+    name: "{{ ansible_user }}"
+    groups: dialout
+    append: yes
+
+- name: add repo keys
+  become: yes
+  apt_key:
+    url: "{{ item }}"
+    state: present
+  with_items:
+    - http://phoscon.de/apt/deconz.pub.key
+
+- name: add repositories
+  become: yes
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - 'deb http://phoscon.de/apt/deconz {{ ansible_distribution_release }} main'
+
+- name: install package
+  become: yes
+  apt:
+    update_cache: yes
+    name: deconz
+    state: latest
+
+- name: get $UID
+  shell: "echo $UID"
+  register: user_uid
+
+- name: set user for deconz service
+  lineinfile:
+    path: /lib/systemd/system/deconz.service
+    regex: User=
+    line: User={{ user_uid.stdout }}
+    create: yes
+  become: yes
+
+- name: start deconz
+  become: yes
+  systemd:
+    state: started
+    enabled: yes
+    name: deconz
+
+- name: stop deconz-gui
+  become: yes
+  systemd:
+    state: stopped
+    enabled: no
+    name: deconz-gui
+
+# - name: Install iobroker adapter
+#   become: yes
+#   npm:
+#     name: iobroker.{{ item }}
+#     path: /opt/iobroker
+#   with_items:
+#     - deconz

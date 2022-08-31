@@ -1,5 +1,11 @@
+- name: install lshw
+  package:
+    name:
+      - lshw
+  become: yes
+
 - name: check if raspbian
-  shell: cat /etc/os-release | grep 'ID=raspbian'
+  shell: lshw | grep "Raspberry Pi"
   register: os_raspbian
   failed_when: no
   changed_when: no
@@ -14,30 +20,31 @@
 
   when: os_raspbian.rc == 0
 
-- name: "perform Debian tasks"
-  block:
+# - name: "perform Debian tasks"
+#   block:
 
-  - debug:
-      msg: Debian detected
+# - debug:
+#     msg: Debian detected
 
-  - name: install keyrings
-    become: yes
-    package:
-      name: "{{ item }}"
-      state: latest
-    with_items:
-      - debian-keyring
-      - debian-archive-keyring
+- name: install keyrings
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - debian-keyring
+    - debian-archive-keyring
 
-  - name: add repositories
-    become: yes
-    apt_repository:
-      repo: "{{ item }}"
-      state: present
-    with_items:
-      - "deb http://deb.debian.org/debian/ {{ ansible_distribution_release }} main contrib non-free"
-      - "deb http://deb.debian.org/debian/ {{ ansible_distribution_release }}-updates main contrib non-free"
-      - "deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib"
-      - "deb http://security.debian.org/ {{ ansible_distribution_release }}/updates main contrib non-free"
+- name: add repositories
+  become: yes
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - "deb http://deb.debian.org/debian/ {{ ansible_distribution_release }} main contrib non-free"
+    - "deb http://deb.debian.org/debian/ {{ ansible_distribution_release }}-updates main contrib non-free"
+    - "deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib"
+    - "deb http://security.debian.org/debian-security {{ ansible_distribution_release }}-security main contrib non-free"
+  ignore_errors: yes
 
-  when: os_raspbian.rc == 1
+  # when: os_raspbian.rc == 1

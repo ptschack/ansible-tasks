@@ -49,21 +49,58 @@
     name: "{{ ansible_user }}"
     shell: /usr/bin/zsh
 
+- name: ensure /opt/shelltools
+  become: yes
+  file:
+    path: /opt/shelltools
+    state: directory
+    mode: a+r
+
+- name: get latest lsd release
+  shell: echo "https://github.com/Peltoche/lsd/releases/latest/download/$(curl -s https://github.com/Peltoche/lsd/releases/latest -L | grep -Po 'lsd_[0-9.]+_amd64.deb' | head -n 1)"
+  register: lsd_dl_url
+
+- name: install lsd
+  become: yes
+  apt:
+    deb: "{{ lsd_dl_url.stdout }}"
+
+- name: download shelltools
+  become: yes
+  get_url:
+    url: "{{item}}"
+    dest: /opt/shelltools/
+    force: yes
+    mode: a+rx
+  with_items:
+    - https://github.com/atanunq/viu/releases/latest/download/viu
+    - https://github.com/akavel/up/releases/latest/download/up
+
 - name: configure zshrc
   lineinfile:
     path: ~/.zshrc
-    regexp: "^ZSH_THEME="
-    line: "{{ item }}"
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
   with_items:
-    - regexp: "^ZSH_THEME="
-      line: "ZSH_THEME=aussiegeek" 
-    - regexp: "^alias git_unversion"
-      line: alias git_unversion="git rm -r --cached"
+    - { regex: "^alias restart_kde=", line: "alias restart_kde=\"kstart5 plasmashell\"" }
+    - { regex: "^ZSH_THEME=", line: "ZSH_THEME=aussiegeek" }
+    - { regex: "^alias ll=", line: 'alias ll="lsd -lah"' }
+    - {
+        regex: "^plugins=",
+        line: "plugins=(adb ansible copypath copyfile docker git python rsync tmux)",
+      }
+    - { regex: "^ZSH_TMUX_UNICODE=", line: "ZSH_TMUX_UNICODE=true" }
+    - {
+        regex: "^ZSH_TMUX_DEFAULT_SESSION_NAME=",
+        line: "ZSH_TMUX_DEFAULT_SESSION_NAME=main",
+      }
+    - { regex: "^ZSH_TMUX_CONFIG=", line: "ZSH_TMUX_CONFIG=~/tmux.conf" }
+    # - { regex: "^ZSH_TMUX_AUTOSTART=", line: "ZSH_TMUX_AUTOSTART=true"}
+    # - { regex: "^ZSH_TMUX_AUTOSTART_ONCE=", line: "ZSH_TMUX_AUTOSTART_ONCE=true"}
+    # - { regex: "^ZSH_TMUX_AUTOCONNECT=", line: "ZSH_TMUX_AUTOCONNECT=true"}
+    # - { regex: "^=", line: ""}
 
 - name: configure zsh vars and aliases
-  blockinfile:
+  lineinfile:
     path: ~/.zshrc
-    insertafter: EOF
-    block: |
-      alias ll="ls -lah --color=auto"
-      alias restart_kde="sudo killall plasmashell ; kstart plasmashell"
+    line: export PATH=/opt/shelltools${PATH:+:${PATH}}

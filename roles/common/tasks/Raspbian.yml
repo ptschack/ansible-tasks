@@ -19,5 +19,4 @@
     repo: "{{ item }}"
     state: present
   with_items:
-    - 'deb https://archive.raspberrypi.org/debian/ {{ ansible_distribution_release }} main ui'
-    - 'deb http://raspbian.raspberrypi.org/raspbian/ {{ ansible_distribution_release }} main contrib non-free rpi firmware'
+    - 'deb https://archive.raspberrypi.org/debian/ {{ ansible_distribution_release }} main'
