@@ -4,3 +4,16 @@
     update_cache: yes
     upgrade: full
     force_apt_get: yes
+
+- name: add volian apt key
+  become: yes
+  apt_key:
+    state: present
+    url: https://deb.volian.org/volian/scar.key
+
+- name: add repository for nala
+  become: yes
+  apt_repository:
+    repo: deb https://deb.volian.org/volian/ scar main
+    state: present
+    update_cache: yes

@@ -56,8 +56,11 @@
     state: directory
     mode: a+r
 
+- set_fact:
+    lsd_arch: "{{ {'x86_64': 'amd64', 'string2': 'arm64'}[ansible_architecture] | default('') }}"
+
 - name: get latest lsd release
-  shell: echo "https://github.com/Peltoche/lsd/releases/latest/download/$(curl -s https://github.com/Peltoche/lsd/releases/latest -L | grep -Po 'lsd_[0-9.]+_amd64.deb' | head -n 1)"
+  shell: echo "https://github.com/Peltoche/lsd/releases/latest/download/$(curl -s https://github.com/Peltoche/lsd/releases/latest -L | grep -Po 'lsd_[0-9.]+_{{ lsd_arch }}.deb' | head -n 1)"
   register: lsd_dl_url
 
 - name: install lsd

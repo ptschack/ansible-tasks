@@ -37,4 +37,5 @@
     - git
     - openssh-client
     - unrar
+    - nala
   ignore_errors: yes
